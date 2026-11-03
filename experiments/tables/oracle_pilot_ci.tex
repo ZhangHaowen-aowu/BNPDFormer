@@ -1,0 +1,42 @@
+% Compact mode is enabled only by the English appendix layout.
+\ifdefined\CompactOracleTable
+\begin{table}[pos=!htbp]
+\else
+\begin{table*}[pos=!tbp]
+\fi
+\centering
+\caption{Production-sensitivity alignment of the Ops labelling method used by PHGST-DM in the development pilot.}
+\label{tab:oracle-pilot-ci}
+\ifdefined\CompactOracleTable
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\else
+\footnotesize
+\setlength{\tabcolsep}{8pt}
+\fi
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\ifdefined\CompactOracleTable
+Metric & \makecell{Point\\estimate} & \makecell{95\% confidence\\interval} & \makecell{Interval\\width} \\
+\else
+Metric & Point estimate & 95\% confidence interval & Interval width \\
+\fi
+\midrule
+NDCG@3 & 0.531 & [0.492, 0.570] & 0.079 \\
+Positive Recall@2 & 55.556\% & [51.141, 59.971]\% & 8.830 pp \\
+Positive Recall@3 & 68.519\% & [63.270, 73.768]\% & 10.497 pp \\
+Weighted Recall@3 & 71.623\% & [66.052, 77.194]\% & 11.143 pp \\
+Coverage@3$_{0.9}$ & 72.222\% & [66.974, 77.470]\% & 10.497 pp \\
+\bottomrule
+\end{tabular}
+\par\vspace{3pt}
+\begin{minipage}{\ifdefined\CompactOracleTable\columnwidth\else0.95\textwidth\fi}
+\scriptsize
+The pilot comprises 30 disturbance-free development episodes. Interval width is the upper bound minus the lower bound; pp denotes percentage points. These exploratory intervals do not establish superiority over the comparison methods or generalization to other disturbance conditions.
+\end{minipage}
+\ifdefined\CompactOracleTable
+\end{table}
+\else
+\end{table*}
+\fi

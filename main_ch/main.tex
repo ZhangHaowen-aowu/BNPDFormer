@@ -221,7 +221,7 @@ Firstly, to broaden the observation scope, PHGST-DM combines a heterogeneous pro
 Secondly, to improve bottleneck supervision, process-informed supervision generates labels for sustained bottlenecks and their causes, while clustering identifies repeated operating patterns.
 In addition, the model extends bottleneck prediction beyond simple temporal estimates to provide a more comprehensive bottleneck description.
 It jointly outputs bottleneck station, onset, duration, process cause, and remaining order time.
-Experiments in the evaluated simulation setting demonstrate higher event-prediction accuracy than the compared baselines and detailed bottleneck forecasts, while ablation studies support the contributions of heterogeneous resource information, process-informed supervision, and delay-aware modeling.
+Experiments in the evaluated simulation setting demonstrate higher event-prediction accuracy than the compared baselines (event F1-score gains of 8.2--22.1 percentage points) and detailed bottleneck forecasts, while ablation studies support the contributions of heterogeneous resource information, process-informed supervision, and delay-aware modeling.
 These results support advance warning and joint bottleneck forecasting in the evaluated multi-entity production setting.
 
 \zhpara{动态瓶颈预测是多实体生产系统中的关键任务。
@@ -234,7 +234,7 @@ These results support advance warning and joint bottleneck forecasting in the ev
 其次，为改进瓶颈监督，过程知情监督为持续瓶颈及其原因生成标签，聚类则识别反复出现的运行模式。
 此外，模型将瓶颈预测从简单的时间估计扩展为更完整的瓶颈描述。
 它联合输出瓶颈工位、开始时刻、持续时间、过程原因和订单剩余时间。
-在所评估的仿真设定下，实验表明事件预测精度高于对照基线，并能给出详细瓶颈预报；消融结果支持异构资源信息、过程知情监督和延迟感知建模各自的贡献。
+在所评估的仿真设定下，实验表明事件预测精度高于对照基线（事件 F1-score 提升 8.2--22.1 个百分点），并能给出详细瓶颈预报；消融结果支持异构资源信息、过程知情监督和延迟感知建模各自的贡献。
 这些结果凸显了 PHGST-DM 在多实体生产系统中对新兴瓶颈提供提前预警、并指导及时资源干预的潜力。}
 
 
@@ -261,22 +261,22 @@ A production bottleneck is the resource or process that limits system throughput
 \zhpara{生产瓶颈是指在某一时刻限制系统吞吐量的资源或过程~\cite{subramaniyan2023throughput,tang2024comprehensive}。其身份与位置是动态的：资源可用性、物料供给、在制品和运行条件的变化，都可能使瓶颈在生产过程中发生迁移~\cite{lai2021data}。因此，及时准确预测这些变化对生产管理十分重要：提前预警可以支持资源配置与生产调度。}
 
 
-Existing bottleneck-prediction studies face two limitations. First, existing studies mainly model workstation data. Time-series and recurrent methods forecast active periods, blockage, starvation, or bottleneck scores from workstation-centred observations~\cite{li2011throughput,subramaniyan2018data,lai2018twolayer,liu2023lstmdam}; graph-based methods further introduce task or material-flow relations~\cite{lai2023bstan,yin2025btgcn,ma2023tusb,cen2025dstnn,wu2025knowledge}. Nevertheless, workers, material availability, buffers, and transport resources are rarely represented together, even though their interactions can determine where and when a bottleneck appears. This narrow observation scope leaves the factory graph incomplete and makes delayed cross-resource propagation difficult to capture: an operating change may pass through transport and buffering before emerging as blockage or starvation at a downstream station, so the resource where the operating change originates may differ from the resource that later constrains throughput~\cite{gu2015passive,zhang2022vulnerability}. Recurrent transmission and local graph aggregation can capture temporal or neighbourhood dependence~\cite{liu2023lstmdam,yin2025btgcn}, but do not explicitly align an earlier cross-resource pattern with its delayed consequence.
+Existing bottleneck-prediction studies face two limitations. First, existing studies primarily rely on workstation-centred operational data using time-series and recurrent methods to forecast active periods, blockage, starvation, or bottleneck scores~\cite{li2011throughput,subramaniyan2018data,lai2018twolayer,liu2023lstmdam}; graph-based methods further introduce task or material-flow relations~\cite{lai2023bstan,yin2025btgcn,ma2023tusb,cen2025dstnn,wu2025knowledge}. Nevertheless, workers, material availability, buffers, and transport resources are rarely represented together, even though their interactions can determine where and when a bottleneck appears. This narrow observation scope leaves the factory graph incomplete and makes delayed cross-resource propagation difficult to capture: an operating change may pass through transport and buffering before emerging as blockage or starvation at a downstream station, so the resource where the operating change originates may differ from the resource that later constrains throughput~\cite{gu2015passive,zhang2022vulnerability}. Recurrent transmission and local graph aggregation can capture temporal or neighbourhood dependence~\cite{liu2023lstmdam,yin2025btgcn}, but do not explicitly align an earlier cross-resource pattern with its delayed consequence.
 
 \zhpara{现有瓶颈预测研究面临两方面局限。第一，已有研究主要建模工位数据。时间序列和循环方法通常依据以工位为中心的观测，预测活跃期、阻塞、饥饿或瓶颈评分~\cite{li2011throughput,subramaniyan2018data,lai2018twolayer,liu2023lstmdam}；图方法进一步引入任务或物料流关系~\cite{lai2023bstan,yin2025btgcn,ma2023tusb,cen2025dstnn,wu2025knowledge}。然而，工人、物料可用性、缓冲区和运输资源很少被放在同一表示中，尽管它们之间的交互可以决定瓶颈在何处、何时出现。这一狭窄观测范围使工厂图不完整，也使延迟的跨资源传播难以刻画：运行变化可能先经过运输和缓冲，再在下游工位表现为阻塞或饥饿，因此变化起源的资源可能不同于随后限制吞吐量的资源~\cite{gu2015passive,zhang2022vulnerability}。循环传递和局部图聚合能够刻画时间或邻域依赖~\cite{liu2023lstmdam,yin2025btgcn}，但没有把较早的跨资源模式与其延迟后果显式对齐。}
 
 
-Second, bottleneck supervision is difficult to construct. Bottleneck events are scarce in normal operation, and deliberately inducing failures, worker absence, material shortages, or logistics interruption to obtain training data is not feasible during real factory production. Conventional scalar scores and turning-point indicators derived from utilization, blockage, or starvation~\cite{subramaniyan2023throughput,lai2021data,su2022dynamic} can support retrospective analysis. However, when such indicators are used alone to construct prediction targets, they reduce a changing production process to a narrow decision criterion and may ignore the combined evidence of queues, resource availability, material shortages, and logistics conditions. Without this process context, the resulting labels may mistake short-term changes for lasting bottlenecks and assign similar labels to events with different operational causes. Such ambiguous targets can limit prediction accuracy and make the causes of predicted events difficult to interpret. These limitations motivate a unified approach to heterogeneous observation, process-informed supervision, and delay-aware prediction.
+Second, bottleneck supervision is difficult to construct. Bottleneck events are scarce in normal operation, and deliberately inducing failures, worker absence, material shortages, or logistics interruptions to obtain training data is not feasible during real factory production. Conventional scalar scores and turning-point indicators derived from utilization, blockage, or starvation~\cite{subramaniyan2023throughput,lai2021data,su2022dynamic} can support retrospective analysis. However, when such indicators are used alone to construct prediction targets, they reduce a changing production process to a narrow decision criterion and may ignore the combined evidence of queues, resource availability, material shortages, and logistics conditions. Without this process context, the resulting labels may mistake short-term changes for lasting bottlenecks and assign similar labels to events with different operational causes. Such ambiguous targets can limit prediction accuracy and make the causes of predicted events difficult to interpret. These limitations motivate a unified approach to heterogeneous observation, process-informed supervision, and delay-aware prediction.
 
 \zhpara{第二，瓶颈监督难以构造。正常运行中瓶颈事件稀少，而在真实工厂生产中故意制造故障、人员离岗、物料短缺或物流中断以获取训练数据并不可行。由利用率、阻塞或饥饿得到的传统标量评分与转折点指标~\cite{subramaniyan2023throughput,lai2021data,su2022dynamic}能够支持事后分析。然而，当仅用这类指标构造预测目标时，会把变化中的生产过程压缩为狭窄的判定准则，并可能忽略队列、资源可用性、物料短缺与物流条件的综合证据。缺少这一过程上下文时，所得标签可能把短期变化误认为持续瓶颈，并对具有不同运行原因的事件赋予相似标签。此类模糊目标会限制预测精度，并使所预测事件的原因难以解释。上述局限要求一种能够统一处理异构观测、过程知情监督和延迟感知预测的方法。}
 
 
-To address these limitations, we propose the \textbf{Process-Informed Heterogeneous-Graph Spatiotemporal Transformer with Delay-aware Modeling (PHGST-DM)}. First, to broaden the observation scope and capture delayed interactions, PHGST-DM combines a heterogeneous process--logistics graph with delay-aware modeling guided by recurrent operating patterns. An open-workspace factory model developed for NVIDIA Isaac Sim provides traceable trajectories of workstations, workers, material supply, buffers, and transport resources under configurable operating conditions~\cite{lu2020digital,isaacsim2026,xue2026safe}. These observations are organized as a heterogeneous process--logistics graph: workstations and handling resources are represented as interacting entities, while material shortage, buffer occupancy, labour availability, and transport delay provide resource-specific operational context. This representation brings production and logistics observations into a shared graph, allowing the predictor to account for interactions beyond workstation states alone. Delay-aware modeling matches recent resource trajectories to fixed temporal-pattern prototypes and conditions cross-resource attention on the resulting pattern context. Earlier resource states can therefore contribute to the prediction of bottlenecks that emerge elsewhere after transport or buffering delay. Second, to improve bottleneck supervision, process-informed supervision combines queue, blockage, starvation, availability, shortage, and logistics evidence with persistence requirements. This supervision distinguishes sustained bottleneck events from short-term fluctuations and assigns observable process-cause targets, connecting supervision to traceable production evidence. Clustering summarizes training-only short temporal patches as recurrent operating-pattern prototypes, providing the pattern context used for delay-aware modeling. Together, these components provide bottleneck-event and process-cause supervision.
+To address these limitations, we propose the \textbf{Process-Informed Heterogeneous-Graph Spatiotemporal Transformer with Delay-aware Modeling (PHGST-DM)}. First, to broaden the observation scope and capture delayed interactions, PHGST-DM combines a heterogeneous process--logistics graph with delay-aware modelling guided by recurrent operating patterns. An open-workspace factory model developed for NVIDIA Isaac Sim provides traceable trajectories of workstations, workers, material supply, buffers, and transport resources under configurable operating conditions~\cite{lu2020digital,isaacsim2026,xue2026safe}. These observations are organized as a heterogeneous process--logistics graph: workstations and handling resources are represented as interacting entities, while material shortage, buffer occupancy, labour availability, and transport delay provide resource-specific operational context. This representation brings production and logistics observations into a shared graph, allowing the predictor to account for interactions beyond workstation states alone. Delay-aware modelling matches recent resource trajectories to fixed temporal-pattern prototypes and conditions cross-resource attention on the resulting pattern context. Earlier resource states can therefore contribute to the prediction of bottlenecks that emerge elsewhere after a transport or buffering delay. Second, to improve bottleneck supervision, process-informed supervision combines queue, blockage, starvation, availability, shortage, and logistics evidence with persistence requirements. This supervision distinguishes sustained bottleneck events from short-term fluctuations and assigns observable process-cause targets, connecting supervision to traceable production evidence. Clustering summarizes short temporal patches from the training set as recurrent operating-pattern prototypes, providing the pattern context used for delay-aware modelling. Together, these components provide bottleneck-event and process-cause supervision.
 
 \zhpara{针对这些局限，本文提出\textbf{面向延迟感知建模的过程知情异构图时空 Transformer（PHGST-DM）}。第一，为扩展观测范围并刻画延迟交互，PHGST-DM 将异构工艺—物流图与由重复运行模式引导的延迟感知建模相结合。面向 NVIDIA Isaac Sim 开发的开放式工厂模型，在可配置运行条件下提供工位、工人、物料供给、缓冲区和运输资源的可追溯轨迹~\cite{lu2020digital,isaacsim2026,xue2026safe}。这些观测被组织为异构工艺—物流图：工位与搬运资源表示为相互作用的实体，物料短缺、缓冲区占用、劳动力可用性和运输延迟则提供与资源类型相关的运行上下文。该表示把生产与物流观测纳入同一张图，使预测器能够考虑超出工位状态之外的交互。延迟感知建模将近期资源轨迹与固定时间模式原型匹配，并根据所得模式上下文调节跨资源注意力。因此，较早的资源状态能够参与预测经运输或缓冲延迟后在其他位置显现的瓶颈。第二，为改进瓶颈监督，过程知情监督将队列、阻塞、饥饿、可用性、缺料与物流证据与持续性要求相结合。该监督把持续瓶颈事件与短期波动区分开来，并赋予可观测过程原因目标，从而使监督与可追溯生产证据相联系。聚类将仅来自训练集的短时间片段归纳为重复运行模式原型，为延迟感知建模提供模式上下文。上述组件共同提供瓶颈事件与过程原因监督。}
 
 
-In addition, PHGST-DM jointly outputs bottleneck station, onset, duration, observable process cause, and remaining order time. In the evaluated simulation setting, it achieves higher event-prediction accuracy than the compared baselines. Ablation studies assess the roles of heterogeneous resource information, process-informed supervision, and delay-aware modeling in these forecasts.
+In addition, PHGST-DM jointly predicts the bottleneck station, onset, duration, observable process cause, and remaining order time. In the evaluated simulation setting, it achieves higher event-prediction accuracy than the compared baselines. Ablation studies assess the roles of heterogeneous resource information, process-informed supervision, and delay-aware modelling in these forecasts.
 
 \zhpara{此外，PHGST-DM 联合输出瓶颈工位、起始时刻、持续时间、可观测过程原因以及剩余订单时间。在所评估的仿真设置中，其事件预测精度高于所比较的基线。消融研究评估了异构资源信息、过程知情监督与延迟感知建模在这些预测中的作用。}
 
@@ -288,12 +288,12 @@ The contributions of this work are summarized as follows.
 \zhpara{（1）将动态瓶颈预测从以工位为中心的观测扩展到异构多实体工厂数据。工位、工人、物料供给状态、缓冲区和运输资源及其工艺与物流关系被联合表示，使模型能够捕捉由生产、劳动力、物料和搬运交互形成的瓶颈，而不再仅依赖工位状态。}
 
 
-(2) We develop \emph{process-informed supervision and temporal pattern clustering} for bottleneck data whose events are scarce and weakly separable from normal fluctuations. Resource-specific rules and persistence constraints construct operationally meaningful event and process-cause targets, deterministic cause-aligned regime identifiers provide structured context, and training-only clustering summarizes short temporal patches as recurrent operating-pattern prototypes. This design provides reliable supervision to improve bottleneck-identification accuracy.
+(2) We develop \emph{process-informed supervision and temporal pattern clustering} for data in which bottleneck events are scarce and difficult to distinguish from normal fluctuations. Resource-specific rules and persistence constraints construct operationally meaningful event and process-cause targets, deterministic cause-aligned regime identifiers provide structured context, and training-only clustering summarizes short temporal patches as recurrent operating-pattern prototypes. This design provides process-informed supervision for improving bottleneck-identification accuracy.
 
-\zhpara{（2）针对事件稀少、且与正常波动可分性较弱的瓶颈数据，提出\emph{过程知情监督与时间模式聚类}。资源类型相关规则与持续性约束构造具有运行含义的事件和过程原因目标；确定性原因对齐工况标识提供结构化上下文；仅在训练集上的聚类将短时间片段归纳为重复运行模式原型。该设计提供可靠监督，以提高瓶颈识别精度。}
+\zhpara{（2）针对事件稀少、且与正常波动可分性较弱的瓶颈数据，提出\emph{过程知情监督与时间模式聚类}。资源类型相关规则与持续性约束构造具有运行含义的事件和过程原因目标；确定性原因对齐工况标识提供结构化上下文；仅在训练集上的聚类将短时间片段归纳为重复运行模式原型。该设计提供过程知情监督，以提高瓶颈识别精度。}
 
 
-(3) We develop \emph{recurrent-pattern-guided delay-aware modeling for heterogeneous production resources}. Recent queue trajectories are matched to activity-pattern prototypes, and the resulting context conditions attention across the process--logistics graph. This design uses historical resource interactions to predict emerging bottlenecks, with component studies evaluating its contribution to distant-onset warning.
+(3) We develop \emph{recurrent-pattern-guided delay-aware modelling for heterogeneous production resources}. Recent queue trajectories are matched to activity-pattern prototypes, and the resulting context conditions attention across the process--logistics graph. This design uses historical resource interactions to predict emerging bottlenecks, with component studies evaluating its contribution to distant-onset warning.
 
 \zhpara{(3) 我们提出\emph{面向异构生产资源的、循环模式引导的延迟感知建模}。近期队列轨迹与活动模式原型匹配，所得上下文为工艺—物流图上的注意力提供条件。该设计利用历史资源交互预测新兴瓶颈，并通过组件研究评估其对远距起始预警的贡献。}
 
@@ -309,7 +309,7 @@ The remainder of this paper is organized as follows. Section~\ref{sec:review} re
 
 \subsection{Dynamic bottleneck prediction concepts and task scope}
 
-A throughput bottleneck constrains system output; high utilization, failure, or a local queue alone does not establish that role. Bottleneck-identification methods must therefore be interpreted against production relations and available observations~\cite{subramaniyan2023throughput}. The constrained resource can change with resource availability, material supply, and operating conditions. Lai et al.~\cite{lai2021data} combined production data with factory-physics knowledge to identify shifting bottlenecks in non-serial systems. Detection describes an observed constraint, whereas prediction infers a future one. The distinction between identification, diagnosis, prediction, and prescription~\cite{subramaniyan2021ai} is relevant here: updating detection in real time does not itself provide advance warning.
+A throughput bottleneck constrains system output; high utilization, failure, or a local queue alone does not establish that role. Bottleneck-identification methods must therefore be interpreted in the context of production relations and available observations~\cite{subramaniyan2023throughput}. The constrained resource can change with resource availability, material supply, and operating conditions. Lai et al.~\cite{lai2021data} combined production data with factory-physics knowledge to identify shifting bottlenecks in non-serial systems. Detection describes an observed constraint, whereas prediction infers a future one. The distinction between identification, diagnosis, prediction, and prescription~\cite{subramaniyan2021ai} is relevant here: updating detection in real time does not itself provide advance warning.
 
 \zhpara{吞吐瓶颈约束系统产出；高利用率、故障或局部队列本身并不足以确立该角色。因此，瓶颈识别方法须结合生产关系与可用观测加以解读~\cite{subramaniyan2023throughput}。受约束资源可随资源可用性、物料供应与运行条件而变化。Lai 等~\cite{lai2021data} 将生产数据与工厂物理知识相结合，在非串行系统中识别转移瓶颈。检测描述的是已观测到的约束，而预测推断的是未来约束。识别、诊断、预测与处方之间的区分~\cite{subramaniyan2021ai} 与此相关：实时更新检测本身并不能提供提前预警。}
 
@@ -330,24 +330,24 @@ Event-based prediction gives this warning an explicit resource and time interval
 
 \subsection{Bottleneck indicators and input representation}
 
-Constructing a state representation from production records requires explicit definitions of the observed resources, time range, and indicator semantics. Queue length, waiting time, activity ratio, and blockage or starvation time describe different aspects of resource operation and can form a multi-dimensional observation. Skoogh et al.~\cite{subramaniyan2023throughput} group bottleneck-detection information into queue states, process states, and combinations of the two, representing product accumulation and waiting, resource activity, and constrained operating conditions. Subramaniyan et al.~\cite{subramaniyan2016realtime} computed average active periods from machine states and their timestamps in real-time MES data to identify production bottlenecks. Compared with a point-wise state or a window-level activity ratio, a continuous active period preserves persistence information, showing that indicator design must also reflect the temporal organization of production changes.
+Constructing a state representation from production records requires explicit definitions of the observed resources, observation period, and indicator semantics. Queue length, waiting time, activity ratio, and blockage or starvation time describe different aspects of resource operation and can form a multidimensional observation. Skoogh et al.~\cite{subramaniyan2023throughput} group bottleneck-detection information into queue states, process states, and combinations of the two, representing product accumulation and waiting, resource activity, and constrained operating conditions. Subramaniyan et al.~\cite{subramaniyan2016realtime} computed average active periods from machine states and their timestamps in real-time MES data to identify production bottlenecks. Compared with a pointwise state or a window-level activity ratio, a continuous active period preserves persistence information, showing that indicator design must also reflect the temporal organization of production changes.
 
 \zhpara{从生产记录建立状态表征，需要明确观测资源、时间范围与指标含义。队列长度、等待时间、活动比例及阻塞或饥饿时间分别描述资源运行的不同方面，可共同组成多维观测。Skoogh 等~\cite{subramaniyan2023throughput} 将瓶颈检测信息归纳为队列状态、过程状态及二者的组合，分别反映产品积累与等待、资源活动及其受限情形。Roser 等~\cite{roser2001practical} 依据事件含义区分活跃与非活跃状态，并以平均活跃期识别瓶颈；Subramaniyan 等~\cite{subramaniyan2016realtime} 进一步研究了从实时生产数据计算平均活跃期的方法。与某一时刻的状态或窗口内的活动比例相比，连续活跃期保留了运行持续性的信息，说明指标选择还需考虑生产变化的时间组织方式。}
 
 
-The resulting multi-dimensional indicators can be processed in two complementary ways: process knowledge can define state rules, or data similarity can reveal operating regimes. The first approach combines resource activity, material supply, and neighbouring-process relations to interpret blockage, starvation, or other production conditions. Lai et al.~\cite{lai2021data} combined blockage and starvation information with production-structure knowledge for complex manufacturing systems, while Liu et al.~\cite{liu2023lstmdam} used station supply--demand relations to construct predictive indicators. The second approach clusters machine indicator sequences or multi-dimensional window observations according to similarity. Subramaniyan et al.~\cite{subramaniyan2020clustering} generated bottleneck-indicator time series from event logs and used dynamic-time-warping distance with agglomerative hierarchical clustering to group machines with similar production dynamics. For multi-dimensional window samples, K-means can also summarize similar operating conditions, although its result depends on the feature representation and similarity measure~\cite{jain2010clustering}. Process rules can define supervision, while clustering summarizes recurrent patterns for representation learning. Their combination need not convert cluster assignments into bottleneck or cause labels.
+The resulting multidimensional indicators can be processed in two complementary ways: process knowledge can define state rules, or data similarity can reveal operating regimes. The first approach combines resource activity, material supply, and relations between neighbouring processes to interpret blockage, starvation, or other production conditions. Lai et al.~\cite{lai2021data} combined blockage and starvation information with production-structure knowledge for complex manufacturing systems, while Liu et al.~\cite{liu2023lstmdam} used station supply--demand relations to construct predictive indicators. The second approach clusters machine indicator sequences or multidimensional window observations according to similarity. Subramaniyan et al.~\cite{subramaniyan2020clustering} generated bottleneck-indicator time series from event logs and used dynamic-time-warping distance with agglomerative hierarchical clustering to group machines with similar production dynamics. For multidimensional window samples, K-means can also summarize similar operating conditions, although its results depend on the feature representation and similarity measure~\cite{jain2010clustering}. Process rules can define supervision, while clustering summarizes recurrent patterns for representation learning. Their combination need not convert cluster assignments into bottleneck or cause labels.
 
 \zhpara{多维指标的进一步处理有两条互补思路：基于生产过程知识设定状态判据，或基于数据相似性发现运行模式。前者根据资源活动、物料供给和相邻环节关系，将多个指标组合解释为阻塞、饥饿或其他生产情形。Lai 等~\cite{lai2021data} 将阻塞、饥饿信息与生产结构知识结合用于复杂制造系统的瓶颈判断；Liu 等~\cite{liu2023lstmdam} 依据工位供需关系构造预测指标，体现了生产关系对指标解释的作用。后者则将机器在一段时间内的指标序列，或某一时间窗口内的多维观测作为样本，根据相似性进行聚类。Subramaniyan 等~\cite{subramaniyan2020clustering} 从事件日志生成机器瓶颈指标时序，结合动态时间规整距离与凝聚层次聚类，对生产动态相似的机器分组，并用领域知识解释结果。对于以多维特征表示的窗口样本，K-means 也可用于归纳相似工况，其结果取决于特征表示和相似性度量~\cite{jain2010clustering}。过程规则得到的是具有生产含义的状态判断，聚类得到的是相似样本的分组，二者可以结合。聚类得到的是相似运行模式，而不是直接的瓶颈标签；研究者需要根据簇内特征和生产知识解释这些模式，再将其映射为状态或原因类别。}
 
 
-Combining operational indicators with resource types and rule-derived states produces inputs with both continuous and categorical features. Separate projections and embeddings can preserve these differences before the features are combined, as illustrated by Temporal Fusion Transformer~\cite{lim2021tft}. In manufacturing, these representations must also preserve the resource and process meanings of each observation.
+Combining operational indicators with resource types and rule-derived states produces inputs with both continuous and categorical features. Separate projections and embeddings can preserve these differences before the features are combined, as illustrated by the Temporal Fusion Transformer~\cite{lim2021tft}. In manufacturing, these representations must also preserve the resource and process meanings of each observation.
 
 \zhpara{将运行指标与资源类型及规则导出状态相结合，可得到同时包含连续特征与类别特征的输入。在特征融合之前，可采用独立投影与嵌入以保留这些差异，Temporal Fusion Transformer 即为一例~\cite{lim2021tft}。在制造场景中，这些表示还须保留各观测所对应的资源与过程语义。}
 
 
 \subsection{Delayed cross-resource effects in production systems}\label{sec:manufacturing-delay}
 
-Manufacturing-system studies show that finite buffers can delay the transmission of disruption effects between resources. Finite buffers can temporarily decouple neighbouring stations: an upstream interruption need not starve a downstream machine until the available work-in-process is consumed, while a downstream interruption need not block an upstream machine until the intervening storage fills. Gu et al.~\cite{gu2013hidden} analysed these buffering effects through maintenance opportunity windows in discrete and complex production lines, with simulations and real automotive-assembly-plant cases. Gu et al.~\cite{gu2015passive} further predicted failure-induced starvation or blockage intervals on bottleneck machines when other machines fail upstream or downstream, and validated their algorithm using simulations and an automotive assembly plant. These studies establish an operational reason to consider both the originating disruption and its later effect on a different resource.
+Manufacturing-system studies show that finite buffers can delay the transmission of disruption effects between resources. Finite buffers can temporarily decouple neighbouring stations: an upstream interruption need not starve a downstream machine until the available work-in-process is consumed, while a downstream interruption need not block an upstream machine until the intervening storage fills. Gu et al.~\cite{gu2013hidden} analysed these buffering effects through maintenance opportunity windows in discrete and complex production lines, using simulations and case studies in automotive assembly plants. Gu et al.~\cite{gu2015passive} further predicted failure-induced starvation or blockage intervals on bottleneck machines when other machines fail upstream or downstream, and validated their algorithm in simulations and an automotive assembly plant. These studies establish an operational reason to consider both the originating disruption and its later effect on a different resource.
 
 \zhpara{制造系统研究表明，有限缓冲区会延迟扰动效应在资源之间的传递。有限缓冲可以暂时解耦相邻工位：上游中断不必在在制品耗尽前使下游设备饥饿，下游中断也不必在中间库存填满前阻塞上游设备。Gu 等~\cite{gu2013hidden}通过离散与复杂产线上的维护机会窗口分析了这些缓冲效应，并用仿真与真实汽车装配厂案例加以验证。Gu 等~\cite{gu2015passive}进一步预测了其他设备在上游或下游故障时、瓶颈设备上由故障诱发的饥饿或阻塞区间，并用仿真与汽车装配厂验证了算法。这些研究为同时考虑扰动起源及其对另一资源的滞后影响提供了运行层面的依据。}
 
@@ -369,7 +369,7 @@ Traffic forecasting offers methodological references for this organization: DCRN
 \zhpara{交通预测为这种组织提供了方法参考：DCRNN 将扩散与循环相结合~\cite{li2018dcrnn}，STGCN 将图卷积与时间卷积相结合~\cite{yu2018stgcn}，Graph WaveNet 与 STSGCN 进一步扩展可学习连通性与联合时空交互~\cite{wu2019graphwavenet,song2020stsgcn}。这些机制可组织多节点历史，但道路连通性并不能直接刻画制造工艺、物流或资源协同关系。}
 
 
-Manufacturing graph models differ in the production objects and prediction targets they represent. BSTAN uses stations as nodes and production-line relations as edges, combining GAT with a gated recurrent unit (GRU) to predict blockage and starvation before inferring future bottlenecks~\cite{lai2023bstan}. BTGCN represents ERP-managed tasks in a shipbuilding enterprise as nodes and links them through shared operators~\cite{yin2025btgcn}. Its GCN and GRU predict task-execution frequency for bottleneck identification under a minimum-throughput criterion. Dual-BDSTN combines GRU and self-attention for temporal features with a dynamic graph for material-flow-related spatial dependence~\cite{cen2025dstnn}. Cross-attention integrates these representations to predict blockage and starvation time. Because the nodes, edges, and outputs have different production meanings, comparisons must specify both the analysis object and the prediction target.
+Manufacturing graph models differ in the production objects and prediction targets they represent. BSTAN uses stations as nodes and production-line relations as edges, combining GAT with a gated recurrent unit (GRU) to predict blockage and starvation before inferring future bottlenecks~\cite{lai2023bstan}. BTGCN represents ERP-managed tasks in a shipbuilding enterprise as nodes and links them through shared operators~\cite{yin2025btgcn}. Its GCN and GRU predict task-execution frequency for bottleneck identification under a minimum-throughput criterion. Dual-BDSTN combines GRU and self-attention for temporal features with a dynamic graph for material-flow-related spatial dependence~\cite{cen2025dstnn}. Cross-attention integrates these representations to predict blockage and starvation time. Because the nodes, edges, and outputs have different production meanings, comparisons must specify both the entities being analysed and the prediction target.
 
 \zhpara{制造图模型在所表示的生产对象与预测目标上各不相同。BSTAN 以工位为节点、以产线关系为边，结合 GAT 与 GRU 预测阻塞与 starvation，再推断未来瓶颈~\cite{lai2023bstan}。BTGCN 将造船企业中 ERP 管理的任务表示为节点，并通过共享操作员建立连接~\cite{yin2025btgcn}；其 GCN 与 GRU 在最小吞吐准则下预测任务执行频率以识别瓶颈。Dual-BDSTN 以 GRU 与自注意力提取时间特征，并以动态图刻画与物料流相关的空间依赖~\cite{cen2025dstnn}；交叉注意力融合这些表示以预测阻塞与 starvation 时间。由于节点、边与输出的生产语义不同，比较时必须同时明确分析对象与预测目标。}
 
@@ -403,7 +403,7 @@ Second, process-consistent event supervision remains difficult. Isolated indicat
 \zhpara{第二，与过程一致的事件监督仍较困难。孤立的指标阈值易将瞬态波动与持续约束混淆，且提供的成因信息有限。因此，事件与原因目标需要可追溯到可观测生产状态的定义。}
 
 
-Third, manufacturing studies support delayed cross-resource effects~\cite{gu2013hidden,gu2015passive,zhang2022vulnerability}, but a heterogeneous predictor must organize the relevant historical observations for future station, onset, and duration prediction. These gaps motivate the multi-entity representation, process-informed supervision, and recurrent-pattern-guided delay-aware modeling developed below.
+Third, manufacturing studies support delayed cross-resource effects~\cite{gu2013hidden,gu2015passive,zhang2022vulnerability}, but a heterogeneous predictor must organize the relevant historical observations for future station, onset, and duration prediction. These gaps motivate the multi-entity representation, process-informed supervision, and recurrent-pattern-guided delay-aware modelling developed below.
 
 \zhpara{第三，制造研究支持延迟的跨资源效应~\cite{gu2013hidden,gu2015passive,zhang2022vulnerability}，但异构预测器须为未来的工位、起始时刻与持续时间预测组织相关历史观测。上述空白 驱动 下文所提出的多实体表示、过程知情监督以及循环模式引导的延迟感知建模。}
 
@@ -434,7 +434,7 @@ The system comprises interacting resource entities represented by a heterogeneou
 
 \subsubsection{Production task and resource entities}
 
-We consider a production system coupling processing and assembly with storage, handling, transport, and worker service. A workstation denotes a processing or assembly unit, including automated equipment and manually operated workbenches. Bottleneck prediction observes the controlled production process; it does not replace its admission or allocation controller. The evaluated water-pipe line and collection conditions are described in Section~\ref{sec:exp}.
+We consider a production system that combines processing and assembly with storage, handling, transport, and worker service. A workstation denotes a processing or assembly unit, including automated equipment and manually operated workbenches. Bottleneck prediction observes the controlled production process; it does not replace its admission or allocation controller. The evaluated water-pipe line and collection conditions are described in Section~\ref{sec:exp}.
 
 \zhpara{我们考虑加工与装配耦合存储、搬运、运输与工人服务的生产系统。工位指加工或装配单元，包括自动化设备与人工操作台。瓶颈预测观测受控生产过程，并不替代其准入或分配控制器。所评估的水管产线与采集条件见第~\ref{sec:exp} 节。}
 
@@ -519,7 +519,7 @@ Type & 5 & Workstation, gantry, worker, robot, buffer \\
 \end{tabularx}
 \end{table}
 
-Let $t$ denote the forecast origin, $\tau$ a historical window, and $n$ one of $N$ resources. Collecting their states $x_{\tau,n}$ over $T_{\mathrm{in}}=30$ historical windows gives the input tensor
+Let $t$ denote the forecast origin, $\tau$ a historical window, and $n$ one of $N$ resources. Collecting the states $x_{\tau,n}$ over $T_{\mathrm{in}}=30$ historical windows gives the input tensor
 \begin{equation}
 X_t=\left[x_{\tau,n}\right]_
 {\substack{\tau=t-T_{\mathrm{in}},\ldots,t-1\\n=1,\ldots,N}}
@@ -587,7 +587,7 @@ Algorithm~\ref{alg:targets} in Section~\ref{sec:method} specifies construction o
 
 \subsubsection{Cause and order-level targets}
 
-The window-level process-cause target $c_t$ describes observed conditions accompanying bottleneck evidence. Its fixed priority is material shortage, transport delay, queue buildup, and downstream blockage, inferred from operational variables rather than the injected variation dimension. These categories describe process symptoms, not independently verified root causes.
+The window-level process-cause target $c_t$ describes observed conditions accompanying bottleneck evidence. The fixed priority order is material shortage, transport delay, queue buildup, and downstream blockage. These conditions are inferred from operational variables rather than the injected variation dimension. The categories describe process symptoms, not independently verified root causes.
 
 \zhpara{窗口级过程原因目标 $c_t$ 描述伴随瓶颈证据的可观测条件。固定优先级为物料短缺、运输延迟、队列堆积与下游阻塞，由运行变量推断而非注入扰动维度。这些类别描述过程症状，而非独立验证的根因。}
 
@@ -679,7 +679,7 @@ Figure~\ref{fig:model-architecture} shows how grouped resource features, tempora
 \label{fig:model-architecture}
 \end{figure*}
 
-Algorithm~\ref{alg:phgst-train} specifies training, validation-controlled selection, and held-out evaluation. Algorithm~\ref{alg:phgst-predict} details one forward and report-generation pass.
+Algorithm~\ref{alg:phgst-train} specifies training, validation-controlled selection, and held-out evaluation. Algorithm~\ref{alg:phgst-predict} details one forward pass and the associated report-generation procedure.
 
 \zhpara{算法~\ref{alg:phgst-train} 规定训练、验证控制的模型选择及留出测试评估。算法~\ref{alg:phgst-predict} 详述一次前向与报告生成过程。}
 
@@ -696,7 +696,7 @@ Algorithm~\ref{alg:phgst-train} specifies training, validation-controlled select
 \BlankLine
 \textbf{Phase 1: leakage-controlled data and fixed structural context}\;
 split $\mathcal{E}$ by episode into $\mathcal{E}_{\mathrm{tr}},\mathcal{E}_{\mathrm{val}},\mathcal{E}_{\mathrm{te}}$\;
-construct samples with history-only inputs with Algorithm~\ref{alg:targets} independently inside each episode\;
+construct samples with history-only inputs using Algorithm~\ref{alg:targets}, independently within each episode\;
 fit all feature/target scalers on $\mathcal{E}_{\mathrm{tr}}$; reuse them unchanged for $\mathcal{E}_{\mathrm{val}}$ and $\mathcal{E}_{\mathrm{te}}$\;
 obtain $(A,M^{G},M^{S},E_{\mathrm{lap}})$ from Algorithm~\ref{alg:graph-masks} and $K^{P}$ from Algorithm~\ref{alg:pattern-bank}\;
 freeze every data-derived structural quantity before neural-parameter optimization \tcp*{masks and prototypes stay fixed}
@@ -738,7 +738,7 @@ The following steps instantiate the observations, targets, and graph defined in 
 
 \subsubsection{Open-workspace factory model}
 
-The NVIDIA Isaac Sim factory model records resource transitions, job traces, buffer events, transport tasks, and material inventory at logical-second resolution. Streams are synchronized by episode and time. Episodes affected by the known simulator deadlock defect are discarded as invalid records; valid episodes end after all ten products complete.
+The NVIDIA Isaac Sim factory model records resource transitions, job traces, buffer events, transport tasks, and material inventory at logical-second resolution. Streams are synchronized by episode and time. Episodes affected by the known simulator deadlock defect are discarded as invalid records; valid episodes end after all ten products are completed.
 
 \zhpara{NVIDIA Isaac Sim 工厂模型以逻辑秒分辨率记录资源转移、作业轨迹、缓冲区事件、运输任务与物料库存。各数据流按 episode 与时间同步。受已知仿真器死锁缺陷影响的 episode 作为无效记录丢弃；有效 episode 在十件产品全部完成后结束。}
 
@@ -750,7 +750,7 @@ Configurable resource capacity, service behaviour, and temporary operating varia
 
 \subsubsection{Multi-entity aggregation and target instantiation}
 
-Resource-state intervals are reconstructed from second-resolution logs and aligned into non-overlapping one-minute windows. Processing, blockage, starvation, and stoppage durations are accumulated over their overlap with each window; active and unavailable ratios divide these durations by window length. Queue features count waiting jobs and summarize waiting times. Buffer occupancy is averaged within the window, carrying forward the preceding value when no update is recorded; growth is the difference between window-end and window-start counts. Process and transport relations supply upstream/downstream state ratios, route delay, inbound waiting, and shortage propagation.
+Resource-state intervals are reconstructed from second-resolution logs and aligned into non-overlapping one-minute windows. Processing, blockage, starvation, and stoppage durations are accumulated over their overlap with each window; active and unavailable ratios are calculated by dividing the corresponding durations by the window length. Queue features count waiting jobs and summarize waiting times. Buffer occupancy is averaged within the window; the preceding value is carried forward when no update is recorded; growth is the difference between window-end and window-start counts. Process and transport relations supply upstream/downstream state ratios, route delay, inbound waiting, and shortage propagation.
 
 \zhpara{资源状态区间由秒级日志重建并对齐到非重叠的一分钟窗口。加工、阻塞、starvation 与停顿时长按与各窗口的重叠累加；active 与 unavailable 比率将这些时长除以窗口长度。队列特征统计等待作业数并汇总等待时间。缓冲区占用在窗口内取平均，无更新时沿用前一值；增长量为窗口末与窗口初计数之差。工艺与运输关系提供上下游状态比、路线延迟、 入库等待与短缺传播。}
 
@@ -898,7 +898,7 @@ The 27 input channels are partitioned into six groups: queue, stall, logistics, 
 e^{(q)}_{t,n}=\mathrm{GELU}
 \left(W_q x^{(q)}_{t,n}+b_q\right).
 \end{equation}
-GELU denotes the Gaussian error linear unit. Mean pooling the six group embeddings gives the combined resource embedding $e_{t,n}$:
+GELU denotes the Gaussian error linear unit. Mean pooling of the six group embeddings gives the combined resource embedding $e_{t,n}$:
 \begin{equation}
 e_{t,n}=\frac{1}{6}\sum_{q=1}^{6}e^{(q)}_{t,n}.
 \end{equation}
@@ -931,9 +931,9 @@ E_{\mathrm{time}}+E_{\mathrm{lap}}(G)+E_{\mathrm{node}}.
 关闭星期与时刻嵌入，因回合由订单进度与运行扰动驱动，而非日历周期。}
 
 
-\subsubsection{Delay-aware spatiotemporal modeling}
+\subsubsection{Delay-aware spatiotemporal modelling}
 
-Each encoder block uses temporal, geographic, and semantic attention~\cite{jiang2023pdformer}, organized around resource histories, process--logistics relations, and behavioural similarity. For branch $b\in\{T,G,S\}$, respectively, scaled dot-product attention is computed as
+Each encoder block uses temporal, geographic, and semantic attention~\cite{jiang2023pdformer}, organized around resource histories, process--logistics relations, and behavioural similarity. For each branch $b\in\{T,G,S\}$, scaled dot-product attention is computed as
 \begin{equation}
 \mathrm{Attn}_{b}(Q_b,K_b,V_b;M_b)
 =\mathrm{softmax}\!\left(
@@ -952,7 +952,7 @@ where $Q_b$, $K_b$, and $V_b$ are query, key, and value matrices, $d_h$ is the q
 其中 $Q_b$、$K_b$、$V_b$ 为查询、键与值矩阵，$d_h$ 为查询维，$M_b$ 为分支掩码。}
 
 
-Training-only k-means fits sixteen prototypes from three-window sequences of resource activity ratios; online queries use three-window sequences of queue length. Both variables use the training-fitted feature scaling described above. Let $P_{t,n}$ denote a recent queue-length patch and $K^P$ the fixed activity-prototype bank. Matching them produces the context $C^P_{t,n}$:
+We use k-means to fit sixteen prototypes to three-window sequences of resource activity ratios from the training set. Online queries use three-window sequences of queue length. Both variables use the training-fitted feature scaling described above. Let $P_{t,n}$ denote a recent queue-length patch and $K^P$ the fixed activity-prototype bank. Matching them produces the context $C^P_{t,n}$:
 \begin{equation}
 C^P_{t,n}=
 \mathrm{softmax}\!\left(
@@ -979,7 +979,7 @@ H_G^{(l)}&=\mathrm{Attn}_G(H^{(l-1)},M^G,C^P),\\
 H_S^{(l)}&=\mathrm{Attn}_S(H^{(l-1)},M^S).
 \end{aligned}
 \end{equation}
-Branch outputs are concatenated and projected, followed by pre-normalized residual and feed-forward layers; FFN in Algorithm~\ref{alg:phgst-predict} denotes the feed-forward network. Five blocks use latent dimension 80 and $4/2/2$ temporal/geographic/semantic heads.
+Branch outputs are concatenated and projected, then processed by pre-normalized residual and feed-forward layers; FFN in Algorithm~\ref{alg:phgst-predict} denotes the feed-forward network. The five blocks use a latent dimension of 80 and $4/2/2$ temporal/geographic/semantic heads.
 
 \zhpara{在编码器块 $l$，前一层表示 $H^{(l-1)}$ 馈入三分支。其时间、地理与语义输出记为 $H_T^{(l)}$、$H_G^{(l)}$ 与 $H_S^{(l)}$；地理分支还接收模式上下文 $C^P$：
 \begin{equation}
@@ -1006,7 +1006,7 @@ append $X_{b,u:u+S-1,n,c_{\mathrm{act}}}$ to $\mathcal{P}$\;
 initialize $K^P$ with $K$ distinct patches sampled from $\mathcal{P}$ using seed $0$\;
 \For{$j=1,\ldots,J$}{
 assign each $p\in\mathcal{P}$ to $a(p)=\arg\min_k\lVert p-k^P_k\rVert_2^2$\;
-  \ForEach{centre $k$ with nonempty assignment $\mathcal{P}_k$}{
+  \ForEach{centre $k$ with a nonempty assignment set $\mathcal{P}_k$}{
 $k^P_k\leftarrow |\mathcal{P}_k|^{-1}\sum_{p\in\mathcal{P}_k}p$\;
   }
 }
@@ -1015,7 +1015,7 @@ $k^P_k\leftarrow |\mathcal{P}_k|^{-1}\sum_{p\in\mathcal{P}_k}p$\;
 
 \subsection{Multi-task bottleneck prediction and optimization}
 
-The encoder feeds station-level event and occupancy heads and graph-level cause and remaining-time heads, optimized jointly and decoded under validation-selected thresholds.
+The encoder feeds station-level event and occupancy heads and graph-level cause and remaining-time heads, which are optimized jointly and decoded using validation-selected thresholds.
 
 \zhpara{编码器馈入工位级事件与占用头及图级原因与剩余时间头，联合优化并在验证所选阈值下解码。}
 
@@ -1036,7 +1036,7 @@ The observed-prefix state $h_{t-1,n}$ selects continuation or onset, separating 
 \hat p_{t,n}&=\mathrm{softplus}(f_p(z_{t,n})).
 \end{aligned}
 \end{equation}
-Softplus enforces nonnegative lengths, measured in one-minute windows. Prefix length is uninterrupted bottleneck occupancy from the first future window, distinguishing sustained activity from immediate recovery.
+Softplus enforces nonnegative lengths, measured in one-minute windows. Prefix length measures the duration of uninterrupted bottleneck occupancy from the first future window. It distinguishes sustained activity from immediate recovery.
 The occupancy decoder predicts $\hat O_t\in[0,1]^{H_{\mathrm{label}}\times N}$ as dense temporal supervision. A precursor branch fuses local queue/stall evidence with neighbourhood context before occurrence prediction.
 
 \zhpara{记 $z_{t,n}$ 为受监督工位 $n$ 的最终表示。可学习标量头 $f_{\mathrm{cont}}$ 与 $f_{\mathrm{onset}}$ 分别预测事件延续概率 $p^{\mathrm{cont}}_{t,n}$ 与新起始概率 $p^{\mathrm{onset}}_{t,n}$，使用 sigmoid 函数 $\sigma$：
@@ -1067,7 +1067,7 @@ u_t&=\mathrm{AuxPool}(H_t^{(L)},\text{order state}),\\
 原因头从共享历史表示学习 $\mathcal{C}$ 中由规则导出的四类。}
 
 
-Algorithm~\ref{alg:phgst-predict} combines encoding, heads, and decoding. Pattern centres stay fixed after training-only fitting.
+Algorithm~\ref{alg:phgst-predict} combines encoding, prediction heads, and decoding. Pattern centres stay fixed after training-only fitting.
 
 \zhpara{算法~\ref{alg:phgst-predict} 组合编码、各头与解码。模式中心在仅训练阶段拟合后保持固定。}
 
@@ -1077,7 +1077,7 @@ Algorithm~\ref{alg:phgst-predict} combines encoding, heads, and decoding. Patter
 \SetAlCapFnt{\small}
 \SetAlCapNameFnt{\small\bfseries}
 \SetInd{0.6em}{1.0em}
-\caption{PHGST-DM prediction with delay-aware spatiotemporal modeling.}
+\caption{PHGST-DM prediction with delay-aware spatiotemporal modelling.}
 \label{alg:phgst-predict}
 \KwIn{history $X_t$ and history-only state $h_{t-1}$; $A,M^{G},M^{S}$; pattern bank $K^{P}$; regime state $r_{t-1}$; parameters $(\theta,\psi)$; threshold $\tau$; onset limit $H_{\mathrm{start}}$}
 \KwOut{station reports $\widehat{\mathcal{R}}_t$; occupancy $\hat O_t$; cause $\hat c_t$; remaining time $\hat\ell_t$}
@@ -1087,9 +1087,9 @@ Algorithm~\ref{alg:phgst-predict} combines encoding, heads, and decoding. Patter
 $e^{(q)}\leftarrow\mathrm{GELU}(W_q x^{(q)}+b_q)$\;
 }
 $H^{(0)}\leftarrow\mathrm{mean}_{q}e^{(q)}+E_{\mathrm{time}}+E_{\mathrm{lap}}+E_{\mathrm{node}}$\;
-construct history-only length-$3$ queue patches $P$ and project the fixed activity-pattern centres $K^{P}$\;
+construct history-only queue patches $P$ of length $3$ and project the fixed activity-pattern centres $K^{P}$\;
 \BlankLine
-\textbf{Phase 2: delay-aware spatiotemporal modeling}\;
+\textbf{Phase 2: delay-aware spatiotemporal modelling}\;
 \For{$l\leftarrow 1$ \KwTo $5$}{
 $H_T\leftarrow\mathrm{Attn}_{T}(H^{(l-1)})$\;
 $C^{P}\leftarrow\mathrm{softmax}(f_Q^{P}(P)f_K^{P}(K^{P})^{\top}/\sqrt{d_h})f_V^{P}(K^{P})$ \tcp*{queue query vs.\ activity prototypes}
@@ -1168,7 +1168,7 @@ Numerical weights are given in Appendix~\ref{app:additional}.
 数值权重见附录~\ref{app:additional}。}
 
 
-The occurrence loss combines reweighted binary cross-entropy, focal modulation, hard-false-positive weighting, and an internal differentiable F1 term. Separate onset supervision is applied to the new-onset head. The start loss uses a Gaussian soft target over minute offsets, whereas duration, prefix, and remaining time use log-transformed Smooth-L1 regression. Remaining-time samples are further weighted by order progress.
+The occurrence loss combines reweighted binary cross-entropy, focal modulation, hard-false-positive weighting, and an internal differentiable F1 term. Separate onset supervision is applied to the new-onset head. The start loss uses a Gaussian soft target over minute offsets, whereas duration, prefix length, and remaining time are learned using log-transformed Smooth-L1 regression. Remaining-time samples are further weighted by order progress.
 
 \zhpara{发生损失综合重加权二元交叉熵、focal 调制、困难假阳性加权与内部可微 F1 项。新起始头另施起始监督。起始损失对分钟偏移使用高斯软目标；持续时间、前缀与剩余时间使用对数变换的 Smooth-L1 回归。剩余时间样本再按订单进度加权。}
 
@@ -1185,7 +1185,7 @@ Training follows Algorithm~\ref{alg:phgst-train}. Stage~1 jointly learns the sha
 
 \subsubsection{Validation-controlled report decoding}
 
-At inference, the observed-prefix state defined in Section~\ref{sec:problem} selects the continuation logit when $h_{t-1,n}=1$ and the onset logit otherwise. Prefix evidence can retain an ongoing event and set its onset to zero. Occupancy runs are united with event-head estimates subject to the duration rules. Resource-type thresholds and the active onset limit then filter reports; Appendix~\ref{app:additional} gives numerical cutoffs.
+At inference, the observed-prefix state defined in Section~\ref{sec:problem} selects the continuation logit when $h_{t-1,n}=1$ and the onset logit otherwise. Prefix evidence can retain an ongoing event and set its onset to zero. Occupancy runs are combined with event-head estimates subject to the duration rules. Resource-type thresholds and the active onset limit then filter reports; Appendix~\ref{app:additional} gives numerical cutoffs.
 
 \zhpara{推理时，第~\ref{sec:problem} 节定义的观测前缀状态在 $h_{t-1,n}=1$ 时选择延续 logit，否则选择起始 logit。前缀证据可保留进行中的事件并将其起始设为零。占用片段与事件头估计在持续时间规则下合并。资源类型阈值与 active 起始限制再过滤报告；附录~\ref{app:additional} 给出数值截断。}
 
@@ -1208,7 +1208,7 @@ At a saved factory-model state $t$, each of seven workstation candidates receive
 \begin{equation}
 S_i(t)=M_{\mathrm{base}}(t)-M_{i,0.8}(t).
 \end{equation}
-Positive $S_i(t)$ indicates that temporarily accelerating resource $i$ shortens the order. Each label method ranks candidates using its maximum evidence over the last three fully observed windows before $t$.
+A positive value of $S_i(t)$ indicates that temporarily accelerating resource $i$ shortens the time needed to complete the order. Each label method ranks candidates using its maximum evidence over the last three fully observed windows before $t$.
 
 \zhpara{在保存的工厂模型状态 $t$，七个工位候选各自接受独立的服务包干预。工位加工及其关联工人服务使用时长尺度 $0.8$（等效 $1.25\times$ 服务率），持续 1{,}200 个模型步。基线与干预分支从同一保存状态与随机数状态出发运行至订单完成。记 $M_{\mathrm{base}}(t)$ 与 $M_{i,0.8}(t)$ 为其完成时间（自同一时刻原点计量），反事实敏感性为
 \begin{equation}
@@ -1217,7 +1217,7 @@ S_i(t)=M_{\mathrm{base}}(t)-M_{i,0.8}(t).
 正的 $S_i(t)$ 表示暂时加速资源 $i$ 可缩短订单。}
 
 
-Normalized discounted cumulative gain at rank 3 (NDCG@3) measures ranking quality using positive sensitivity as relevance; Positive Recall@$k$ measures coverage of the oracle's $k$ highest positive-sensitivity resources by the first $k$ candidates. Weighted Recall@3 gives the fraction of total positive sensitivity captured by the first three candidates, and Coverage@3$_{0.9}$ covers resources satisfying $S_i\geq0.9\max_j S_j$.
+Normalized discounted cumulative gain at rank 3 (NDCG@3) measures ranking quality using positive sensitivity as relevance; Positive Recall@$k$ measures coverage of the oracle's $k$ highest positive-sensitivity resources by the first $k$ candidates. Weighted Recall@3 gives the fraction of total positive sensitivity captured by the first three candidates, and Coverage@3$_{0.9}$ measures coverage of resources satisfying $S_i\geq0.9\max_j S_j$.
 
 \zhpara{NDCG@3 以正敏感性为相关性度量排序质量；Positive Recall@$k$ 度量前 $k$ 个候选覆盖 oracle 前 $k$ 个最高正敏感性资源的比例。Weighted Recall@3 为前三个候选捕获的正敏感性总量占比，Coverage@3$_{0.9}$ 覆盖满足 $S_i\geq0.9\max_j S_j$ 的资源。}
 
@@ -1258,9 +1258,9 @@ The fixed acceleration protocol assesses label relevance; it does not select an 
 
 \section{Experiments}\label{sec:exp}
 
-We evaluate whether PHGST-DM can address restricted observation scope and difficult bottleneck supervision to forecast bottleneck events, process causes, and remaining order time. Baseline comparisons evaluate these joint outputs; component studies examine heterogeneous multi-entity representation, process-informed supervision and temporal pattern clustering, and recurrent-pattern-guided delay-aware modeling. A case study follows bottleneck onset, persistence, and recovery. Together, these evaluations assess how the proposed designs contribute to advance warning and joint forecasting. Supplementary results, attention analyses, and computational cost are reported in Appendices~\ref{app:supplementary-results}--\ref{sec:efficiency}.
+We evaluate whether PHGST-DM can address limitations in observation scope and bottleneck supervision when forecasting bottleneck events, process causes, and remaining order time. Baseline comparisons evaluate these joint outputs; component studies examine heterogeneous multi-entity representation, process-informed supervision and temporal pattern clustering, and recurrent-pattern-guided delay-aware modelling. A case study follows bottleneck onset, persistence, and recovery. Together, these evaluations assess how the proposed designs contribute to advance warning and joint forecasting. Supplementary results and attention analyses are reported in Appendices~\ref{app:supplementary-results} and~\ref{app:attention-analysis}.
 
-\zhpara{我们评估 PHGST-DM 能否在受限观测范围与困难瓶颈监督下预报瓶颈事件、过程原因与订单剩余时间。基线比较评估这些联合输出；组件研究考察异构多实体表示、过程知情监督与时间模式聚类，以及循环模式引导的延迟感知建模。案例研究跟踪瓶颈起始、持续与恢复。上述评估共同检验所提设计对提前预警与联合预报的贡献。补充结果、注意力分析与计算成本见附录~\ref{app:supplementary-results}--\ref{sec:efficiency}。}
+\zhpara{我们评估 PHGST-DM 能否在受限观测范围与困难瓶颈监督下预报瓶颈事件、过程原因与订单剩余时间。基线比较评估这些联合输出；组件研究考察异构多实体表示、过程知情监督与时间模式聚类，以及循环模式引导的延迟感知建模。案例研究跟踪瓶颈起始、持续与恢复。上述评估共同检验所提设计对提前预警与联合预报的贡献。补充结果与注意力分析见附录~\ref{app:supplementary-results} 与~\ref{app:attention-analysis}。}
 
 
 \subsection{Experimental setup}
@@ -1279,7 +1279,7 @@ Experiments use \texttt{dense\_i1}, collected from the NVIDIA Isaac Sim factory 
 \label{fig:experiment}
 \end{figure*}
 
-The data-generation environment exposes four operating variation dimensions and applies each dimension at three intervention levels (Table~\ref{tab:disturbance-design}). Level~0 changes episode-wide resource capacity before each model run, Level~1 perturbs sampled processing or service behaviour, and Level~2 injects temporary events during production. The platform supports intensity $I\in\{1,2,3\}$; slash-separated values in the table follow this order. The formal \texttt{dense\_i1} collection activates one dimension at a time at $I=1$, while nominal runs keep all dimensions inactive. The injected dimension controls data generation but is not used as the bottleneck or process-cause label.
+The data-generation environment exposes four operating variation dimensions and applies variations in each dimension at three intervention levels (Table~\ref{tab:disturbance-design}). Level~0 changes episode-wide resource capacity before each model run, Level~1 perturbs sampled processing or service behaviour, and Level~2 injects temporary events during production. The platform supports intensity $I\in\{1,2,3\}$; slash-separated values in the table follow this order. The main \texttt{dense\_i1} collection activates one dimension at a time at $I=1$, while nominal runs keep all dimensions inactive. The injected dimension controls data generation but is not used as the bottleneck or process-cause label.
 
 \zhpara{数据生成环境围绕工位、人员、物流和物料四个维度设置扰动，并在配置级、采样级和运行时事件级三个层面实施（表~\ref{tab:disturbance-design}）。L0 在仿真开始前改变整局资源能力，L1 改变加工或服务过程的随机采样，L2 在生产过程中注入有起止时间的临时事件。环境支持 $I\in\{1,2,3\}$ 三档强度，表中斜线分隔值依次对应三档。正式 \texttt{dense\_i1} 数据每次仅激活一个扰动维度且固定 $I=1$，无扰动运行保持全部维度为标称状态；二维、三维和四维混合扰动另行保存，不并入主数据集。这样的设计既保留了注入条件的可追溯性，也避免把扰动维度直接当作瓶颈标签或过程原因标签。}
 
@@ -1295,15 +1295,15 @@ The data-generation environment exposes four operating variation dimensions and 
 \toprule
 Dimension & L0: episode configuration & L1: sampled process variation & L2: temporary runtime events \\
 \midrule
-workstation & Disable workbench ws1 and rotary-welding ws1 & Processing-time noise $5/10/15$ steps; success rate $0.88/0.76/0.64$; tool wear $15/30/45$ steps per 1,000 steps & $2/(2$--$3)/(3$--$4)$ idle-station failures; additional $1$--$2/2$--$3/3$--$4$ weld or kitting quality-hold windows \\
-Worker & Reduce workers from 5 to $3/2/1$ & Service-time scale $1.55/2.10/2.65$; worker-specific skill range $0.8$--$1.4/0.7$--$1.6/0.6$--$1.8$; time noise $12/22/32$ steps & $2/(2$--$3)/(3$--$4)$ temporary absences, applied only when the selected worker is idle \\
-Logistics & Reduce AGVs from 4 to $2/1/1$; retain all four zone gantries & Gantry-time scale $1.65/2.30/2.95$ with motion noise $10/18/26$ steps; weak background process variation & $2/(2$--$3)/(3$--$4)$ gantry or AGV freezes; at least one pulse targets an AGV while other vehicles remain active \\
+Workstation & Disable workbench ws1 and rotary-welding ws1 & Processing-time noise $5/10/15$ steps; success rate $0.88/0.76/0.64$; tool wear $15/30/45$ steps per 1,000 steps & $2/(2$--$3)/(3$--$4)$ idle-station failures; additional $1$--$2/2$--$3/3$--$4$ weld or kitting quality-hold windows \\
+Worker & Reduce the number of workers from 5 to $3/2/1$ & Service-time scale $1.55/2.10/2.65$; worker-specific skill range $0.8$--$1.4/0.7$--$1.6/0.6$--$1.8$; time noise $12/22/32$ steps & $2/(2$--$3)/(3$--$4)$ temporary absences, applied only when the selected worker is idle \\
+Logistics & Reduce the number of AGVs from 4 to $2/1/1$; retain all four zone gantries & Gantry-time scale $1.65/2.30/2.95$ with motion noise $10/18/26$ steps; weak background process variation & $2/(2$--$3)/(3$--$4)$ gantry or AGV freezes; at least one pulse targets an AGV while other vehicles remain active \\
 Material & Keep the nominal inventory of ten pipes, flanges, and elbows; no permanent deletion & At steps 400--1,000, temporarily hide $6$--$7/7$--$8/7$--$8$ idle flanges or elbows for $1{,}400$--$2{,}200/2{,}000$--$2{,}700/2{,}500$--$3{,}200$ steps & After the opening shortage, inject $1$--$2/2$--$3/3$--$4$ complementary flange/elbow shortage pulses; pipe blanks are never hidden \\
 \bottomrule
 \end{tabularx}
 \end{table*}
 
-For workstation, worker, and logistics operating variations, every Level~2 pulse lasts at least 600 steps and the intensity-specific upper bounds are 900/1,300/1,400 steps. Event targets, start times, counts, and durations are resampled for each episode using a deterministic seed. Adjacent pulses are separated by at least 360 steps, and an event waits for an eligible idle target rather than interrupting an active operation. These controls produce sustained operating variations while avoiding a deterministic one-to-one mapping between an injection and a labelled bottleneck.
+For workstation, worker, and logistics operating variations, every Level~2 pulse lasts at least 600 steps and the intensity-specific upper bounds are 900/1,300/1,400 steps. Event targets, start times, counts, and durations are resampled for each episode using a deterministic seed. Adjacent pulses are separated by at least 360 steps, and an event is delayed until an eligible target is idle rather than interrupting an active operation. These controls produce sustained operating variations while avoiding a deterministic one-to-one mapping between an injection and a labelled bottleneck.
 
 \zhpara{对工位、工人与物流运行扰动，每个 Level~2 脉冲至少持续 600 步，强度特异上界为 900/1{,}300/1{,}400 步。事件目标、起始时刻、次数与持续时间在每回合内用确定性种子重采样。相邻脉冲至少间隔 360 步，事件等待合格空闲目标而非打断进行中作业。这些控制在产生持续运行扰动的同时避免确定性排程。}
 
@@ -1363,9 +1363,9 @@ $\leq15$ & 708 (0.88\%) & 770 (0.96\%) & 78,832 (98.16\%) \\
 
 \subsubsection{Baseline methods}
 
-Four baselines represent tabular, recurrent, and graph-based forecasting approaches. XGBoost learns nonlinear interactions from tabular summaries; LSTM models historical sequences; BTGCN combines production-task graphs with GCN and GRU~\cite{yin2025btgcn}; and BSTAN combines graph attention with GRU for blockage/starvation-related prediction~\cite{lai2023bstan}. All baselines follow the unified experimental protocol, with architecture-specific input representations and learning algorithms.
+Four baselines represent recurrent, graph-based, and Transformer forecasting approaches. LSTM models historical sequences; BSTAN combines graph attention with GRU for blockage/starvation-related prediction~\cite{lai2023bstan}; BTGCN combines production-task graphs with GCN and GRU~\cite{yin2025btgcn}; and PDFormer is adapted from its propagation-delay-aware Transformer architecture for bottleneck prediction~\cite{jiang2023pdformer}. All baselines follow the unified experimental protocol, with architecture-specific input representations and learning algorithms. Its validation precision/recall gates are unmet at all three onset limits, so selection falls back to the maximum station-identification F1; the selected test thresholds are 0.90, 0.85, and 0.85, respectively.
 
-\zhpara{四种基线代表表格、循环与图预测路径。XGBoost 从表格摘要学习非线性交互；LSTM 建模历史序列；BTGCN 将生产任务图与 GCN、GRU 结合~\cite{yin2025btgcn}；BSTAN 将图注意力与 GRU 结合用于阻塞/饥饿相关预测~\cite{lai2023bstan}。全部基线遵循统一实验协议，并保留架构特异的输入表示与学习算法。}
+\zhpara{四种基线代表循环、图与 Transformer 预测路径。LSTM 建模历史序列；BSTAN 将图注意力与 GRU 结合用于阻塞/饥饿相关预测~\cite{lai2023bstan}；BTGCN 将生产任务图与 GCN、GRU 结合~\cite{yin2025btgcn}；PDFormer 基于其传播延迟感知 Transformer 架构适配瓶颈预测任务~\cite{jiang2023pdformer}。全部基线遵循统一实验协议，并保留架构特异的输入表示与学习算法。三个起始限制下均未达到验证精确率/召回率门槛，因此按最大工位识别 F1 回退选模；测试阈值依次为 0.90、0.85 和 0.85。}
 
 
 \begin{table}[pos=!htbp]
@@ -1379,10 +1379,10 @@ Four baselines represent tabular, recurrent, and graph-based forecasting approac
 \toprule
 Model & Core framework & Comparison role \\
 \midrule
-XGBoost & Gradient-boosted decision trees & Tabular predictor \\
 LSTM & Long short-term memory & Recurrent temporal predictor \\
-BTGCN & Graph convolution + GRU & Graph-convolutional predictor \\
 BSTAN & Graph attention + GRU & Graph-attention predictor \\
+BTGCN & Graph convolution + GRU & Graph-convolutional predictor \\
+PDFormer & Propagation-delay-aware Transformer & Spatiotemporal Transformer predictor \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1395,14 +1395,14 @@ All experiments use common data splits, forecast windows, targets, initializatio
 
 
 
-Shared PHGST-DM settings appear in Table~\ref{tab:shared-training-protocol}. AdamW uses batch size 16, learning rate $5\times10^{-5}$, weight decay $0.05$, cosine decay to $10^{-6}$, and fourfold positive-window oversampling. Under the two-stage procedure in Section~\ref{sec:joint-optimization}, stage~1 starts from the fixed parameter state shared by all ablation arms, unfreezes all five encoder blocks, and runs for at most 50 epochs with patience 40. Far-onset weighting doubles onset loss beyond 5~min and uses positive weights $9/10/11$ for the three limits; ordinary and hard false-positive weights are $2.5$ and $2.2$. Stage~2 runs for at most 20 epochs, selected by validation loss. All runs use seed 42 and provide point estimates rather than multi-seed stability estimates. Appendix~\ref{app:additional} provides loss weights, label thresholds, and decoding details.
+Shared PHGST-DM settings appear in Table~\ref{tab:shared-training-protocol}. Training uses AdamW with a batch size of 16, a learning rate of $5\times10^{-5}$, a weight decay of $0.05$, cosine learning-rate decay to $10^{-6}$, and fourfold positive-window oversampling. Under the two-stage procedure in Section~\ref{sec:joint-optimization}, stage~1 starts from the fixed parameter state shared by all ablation arms, unfreezes all five encoder blocks, and runs for at most 50 epochs with an early-stopping patience of 40. Far-onset weighting doubles onset loss beyond 5~min and uses positive weights $9/10/11$ for the three limits; ordinary and hard false-positive weights are $2.5$ and $2.2$. Stage~2 runs for at most 20 epochs, with the checkpoint selected by validation loss. All runs use seed 42 and provide point estimates rather than multi-seed stability estimates. Appendix~\ref{app:additional} provides loss weights, label thresholds, and decoding details.
 
 \zhpara{PHGST-DM 共享设置见表~\ref{tab:shared-training-protocol}。AdamW 批大小 16、学习率 $5\times10^{-5}$、权重衰减 $0.05$、余弦衰减至 $10^{-6}$，正窗口四倍过采样。在第~\ref{sec:joint-optimization} 节两阶段流程下，阶段~1 从各消融臂共享的固定参数状态出发，解冻最后五个编码块，最多 50 epoch、patience 40。远距起始加权在 5~min 外将起始损失加倍，三档起始限制正样本权重为 $9/10/11$；ordinary 与 hard 误报权重为 $2.5$ 与 $2.2$。阶段~2 最多 20 epoch，按验证损失选择。所有 run 使用 seed 42，提供点估计而非多种子稳定性估计。附录~\ref{app:additional} 给出损失权重、标签阈值与解码细节。}
 
 
-The model and report threshold are selected on the validation split. Candidate thresholds are $\{0.45,\dots,0.90,0.94\}$; selection uses the internal station-identification F1 among candidates satisfying validation report precision $\geq0.80$ and recall $\geq0.70$. This selection score is not reported as a result; the reported event metric is the onset-qualified F1-score defined below. All three onset limits use the selected threshold of $0.94$ for testing.
+The model and report threshold are selected on the validation split. Candidate thresholds are $\{0.45,\dots,0.90,0.94\}$; selection uses the internal station-identification F1 among candidates satisfying validation report precision $\geq0.80$ and recall $\geq0.70$. This selection score is not reported as a result; the reported event metric is the onset-qualified F1-score defined below. PHGST-DM uses the selected threshold of $0.94$ for testing at all three onset limits.
 
-\zhpara{checkpoint 与报告阈值依据验证集选择。候选阈值为 $\{0.45,\dots,0.90,0.94\}$；在满足验证报告精确率 $\geq0.80$、召回率 $\geq0.70$ 的候选中，使用内部工位识别 F1 选择工作点。该选择分数不作为结果报告；正式事件指标采用下文定义的、包含起点容差的 F1-score。三个起始限制的测试均采用选定阈值 $0.94$。}
+\zhpara{checkpoint 与报告阈值依据验证集选择。候选阈值为 $\{0.45,\dots,0.90,0.94\}$；在满足验证报告精确率 $\geq0.80$、召回率 $\geq0.70$ 的候选中，使用内部工位识别 F1 选择工作点。该选择分数不作为结果报告；正式事件指标采用下文定义的、包含起点容差的 F1-score。PHGST-DM 在三个起始限制的测试均采用选定阈值 $0.94$。}
 
 
 For resource $n$ at forecast origin $t$, let $\hat s_{t,n}$ and $s_{t,n}$ denote the predicted and reference onset offsets in minutes. A strict report-level hit requires the correct resource and an absolute onset error within tolerance $\epsilon_s$:
@@ -1420,7 +1420,7 @@ At the one-minute window resolution, this tolerance equals three windows.
 在一分钟窗口分辨率下，该容差等于三个窗口。}
 
 
-Metrics cover bottleneck-event prediction, process-cause classification, and remaining order time. The reported bottleneck-event F1-score requires both correct station identification and an onset error within three windows. Upcoming recall uses future-event window--resource pairs whose final historical window is non-bottleneck; Ongoing recall uses pairs with an active final historical window. Onset and duration mean absolute error (MAE) are measured on correctly detected events, while union duration MAE and root mean squared error (RMSE) include missed and false events. Event F1 is the harmonic mean of precision and recall; macro recall is the unweighted mean of class-specific recalls. Next-window and 30-window State F1 describe the predicted occupancy over time, including recovery. Process-cause evaluation uses accuracy and macro recall over the four supported classes. Order-completion evaluation uses remaining-time MAE at the line level.
+Metrics cover bottleneck-event prediction, process-cause classification, and remaining order time. The reported bottleneck-event F1-score requires both correct station identification and an onset error within three windows. Upcoming recall uses future-event window--resource pairs whose final historical window is non-bottleneck; Ongoing recall uses pairs with an active final historical window. Mean absolute error (MAE) for onset and duration is measured on correctly detected events, while union duration MAE and root mean squared error (RMSE) include missed events and false positives. Event F1 is the harmonic mean of precision and recall; macro recall is the unweighted mean of class-specific recalls. Next-window and 30-window State F1 describe the predicted occupancy over time, including recovery. Process-cause evaluation uses accuracy and macro recall over the four supported classes. Order-completion evaluation uses remaining-time MAE at the line level.
 
 \zhpara{指标覆盖瓶颈事件预测、过程原因分类与订单剩余时间。所报告的瓶颈事件 F1 要求工位识别正确且起始误差在三窗口内。Upcoming 召回使用最终历史窗口非瓶颈的未来事件窗口—资源对；Ongoing 召回使用最终历史窗口已激活的配对。起始与持续时间平均绝对误差（MAE）在正确检出事件上计量，而并集持续时间误差在报告与参考占用的并集上计量。}
 
@@ -1461,14 +1461,14 @@ At the event level, we assess how accurately PHGST-DM identifies bottleneck stat
 \zhpara{在事件层面，评估 PHGST-DM 识别瓶颈工位并预测其起始、持续时间与未来占用的准确程度（表~\ref{tab:comparison-main}）。}
 
 
-PHGST-DM achieves the highest event F1, upcoming recall, ongoing recall, and state F1 across the onset limits. Relative to the strongest baseline for each metric and limit, event F1 improves by 10.2--19.1 percentage points and upcoming recall by 42.3--44.3 percentage points. These gains show improved detection before bottlenecks become active, alongside continued coverage of persistent constraints (Figure~\ref{fig:baseline-comparison}).
+PHGST-DM achieves the highest event F1, upcoming recall, ongoing recall, and state F1 across the onset limits. Relative to the strongest baseline for each metric and limit, event F1 improves by 8.2--22.1 percentage points and upcoming recall by 28.7--39.9 percentage points. These gains show improved detection before bottlenecks become active, alongside continued coverage of persistent constraints (Figure~\ref{fig:baseline-comparison}).
 
-\zhpara{PHGST-DM 在各起始限制下取得最高的 event F1、upcoming recall、ongoing recall 与 state F1。相对各指标与各起始限制的最强基线，event F1 提升 10.2--19.1 个百分点，upcoming recall 提升 42.3--44.3 个百分点。这些增益表明在瓶颈变为 active 之前检测改善，同时仍覆盖 persistent 约束（图~\ref{fig:baseline-comparison}）。}
+\zhpara{PHGST-DM 在各起始限制下取得最高的 event F1、upcoming recall、ongoing recall 与 state F1。相对各指标与各起始限制的最强基线，event F1 提升 8.2--22.1 个百分点，upcoming recall 提升 28.7--39.9 个百分点。这些增益表明在瓶颈变为 active 之前检测改善，同时仍覆盖 persistent 约束（图~\ref{fig:baseline-comparison}）。}
 
 
 \begin{table*}[pos=!tbp]
 \centering
-\caption{Bottleneck event and temporal prediction. Classification scores are percentages; timing MAE is in minutes. Within each onset limit, bold marks the best value and underline marks second-best. All entries use the unified 5,354-window re-evaluation in Section~\ref{sec:comparison-overview}.}
+\caption{Bottleneck event and temporal prediction. Classification scores are percentages; timing MAE is in minutes. Within each onset limit, boldface marks the best value and underlining marks the second-best. All entries use the unified 5,354-window re-evaluation in Section~\ref{sec:comparison-overview}.}
 \label{tab:comparison-main}
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
@@ -1481,31 +1481,31 @@ Model & \multicolumn{1}{c}{Event identification $\uparrow$} & \multicolumn{2}{c}
 \midrule
 \multicolumn{8}{l}{\textit{Onset limit $\leq5$}} \\
 PHGST-DM & \textbf{80.4\%} & \textbf{54.2\%} & \textbf{93.7\%} & 0.127 & \textbf{1.863} & \textbf{88.3\%} & \textbf{52.5\%} \\
-XGBoost & \underline{70.2\%} & 6.0\% & \underline{81.9\%} & \underline{0.030} & \underline{3.264} & 61.1\% & 37.3\% \\
-LSTM & 58.3\% & \underline{9.9\%} & 68.7\% & 0.056 & 3.855 & 29.5\% & 29.5\% \\
-BTGCN & 66.9\% & 4.6\% & 78.6\% & \textbf{0.020} & 3.322 & 64.3\% & 37.2\% \\
-BSTAN & 68.7\% & 9.5\% & 79.4\% & 0.043 & 3.565 & \underline{71.9\%} & \underline{37.9\%} \\
+LSTM & 58.3\% & 9.9\% & 68.7\% & 0.056 & 3.855 & 29.5\% & 29.5\% \\
+BSTAN & 68.7\% & 9.5\% & 79.4\% & 0.043 & 3.565 & 71.9\% & \underline{37.9\%} \\
+BTGCN & 66.9\% & 4.6\% & 78.6\% & \underline{0.020} & 3.322 & 64.3\% & 37.2\% \\
+PDFormer & \underline{72.2\%} & \underline{14.3\%} & \underline{89.2\%} & \textbf{0.008} & \underline{2.725} & \underline{85.4\%} & 34.7\% \\
 \midrule
 \multicolumn{8}{l}{\textit{Onset limit $\leq10$}} \\
 PHGST-DM & \textbf{77.8\%} & \textbf{53.5\%} & \textbf{93.9\%} & 0.227 & \textbf{1.788} & \textbf{89.2\%} & \textbf{58.9\%} \\
-XGBoost & \underline{61.1\%} & 4.1\% & \underline{80.5\%} & \underline{0.122} & \underline{3.210} & 59.5\% & 33.7\% \\
-LSTM & 47.7\% & \underline{11.2\%} & 69.3\% & 0.388 & 3.768 & 27.5\% & 26.2\% \\
+LSTM & 47.7\% & 11.2\% & 69.3\% & 0.388 & 3.768 & 27.5\% & 26.2\% \\
+BSTAN & \underline{60.9\%} & 5.7\% & 79.6\% & \underline{0.153} & 3.533 & 63.2\% & \underline{36.5\%} \\
 BTGCN & 57.9\% & 4.5\% & 72.2\% & \textbf{0.117} & 3.238 & 56.6\% & 35.9\% \\
-BSTAN & 60.9\% & 5.7\% & 79.6\% & 0.153 & 3.533 & \underline{63.2\%} & \underline{36.5\%} \\
+PDFormer & 59.8\% & \underline{22.2\%} & \underline{90.2\%} & 0.203 & \underline{2.798} & \underline{84.2\%} & 34.7\% \\
 \midrule
 \multicolumn{8}{l}{\textit{Onset limit $\leq15$}} \\
-PHGST-DM & \textbf{76.8\%} & \textbf{53.7\%} & \textbf{93.0\%} & 0.227 & \textbf{1.716} & \textbf{90.0\%} & \textbf{61.0\%} \\
-XGBoost & \underline{57.7\%} & 3.9\% & \underline{79.6\%} & \textbf{0.167} & 3.170 & 58.2\% & 32.2\% \\
-LSTM & 46.1\% & \underline{10.2\%} & 64.3\% & 0.453 & 3.615 & 26.8\% & 26.0\% \\
-BTGCN & 51.8\% & 5.4\% & 69.9\% & 0.302 & \underline{3.121} & 46.1\% & 32.3\% \\
-BSTAN & 53.4\% & 4.4\% & 70.0\% & \underline{0.222} & 3.422 & \underline{59.3\%} & \underline{33.5\%} \\
+PHGST-DM & \textbf{76.8\%} & \textbf{53.7\%} & \textbf{93.0\%} & \underline{0.227} & \textbf{1.716} & \textbf{90.0\%} & \textbf{61.0\%} \\
+LSTM & 46.1\% & 10.2\% & 64.3\% & 0.453 & 3.615 & 26.8\% & 26.0\% \\
+BSTAN & 53.4\% & 4.4\% & 70.0\% & \textbf{0.222} & 3.422 & 59.3\% & 33.5\% \\
+BTGCN & 51.8\% & 5.4\% & 69.9\% & 0.302 & 3.121 & 46.1\% & 32.3\% \\
+PDFormer & \underline{54.7\%} & \underline{25.0\%} & \underline{89.5\%} & 0.499 & \underline{2.744} & \underline{82.2\%} & \underline{36.0\%} \\
 \bottomrule
 \end{tabular*}
 \end{table*}
 
-Detected-event duration MAE is 1.40--1.42~min lower than the best baseline at each onset limit, a relative reduction of 42.9--45.0\%. This extends the benefit from identifying an affected station to estimating how long its constraint persists. Timing MAE is conditional on correct detection, and onset MAE alone does not show a uniform advantage over the baselines. Further onset-distance and resource-type results appear in Appendix~\ref{app:supplementary-results}.
+Detected-event duration MAE is 0.86--1.03~min lower than that of the best baseline at each onset limit, a relative reduction of 31.6--37.5\%. This extends the benefit from identifying an affected station to estimating how long its constraint persists. Timing MAE is conditional on correct detection, and onset MAE alone does not show a uniform advantage over the baselines. Further onset-distance and resource-type results appear in Appendix~\ref{app:supplementary-results}.
 
-\zhpara{已检测事件持续时间 MAE 在各起始限制下比最佳基线低 1.40--1.42~min，相对降低 42.9--45.0\%。收益从识别受影响工位延伸至估计约束持续多久。时间 MAE 以正确检测为条件，仅起始 MAE 相对基线并无一致优势。更多起始距离与资源类型结果见附录~\ref{app:supplementary-results}。}
+\zhpara{已检测事件持续时间 MAE 在各起始限制下比最佳基线低 0.86--1.03~min，相对降低 31.6--37.5\%。收益从识别受影响工位延伸至估计约束持续多久。时间 MAE 以正确检测为条件，仅起始 MAE 相对基线并无一致优势。更多起始距离与资源类型结果见附录~\ref{app:supplementary-results}。}
 
 
 \begin{figure*}[pos=!tbp]
@@ -1518,13 +1518,13 @@ Detected-event duration MAE is 1.40--1.42~min lower than the best baseline at ea
 \begin{figure*}[pos=!tbp]
 \centering
 \includegraphics[width=0.90\textwidth]{figures/key_device_models_aligned.pdf}
-\caption{Comparison of PHGST-DM and baselines at Onset limit~$\leq5$: (a)~next-window state; (b)~duration with the true reference truncated at 20~min for visualization (black: true; dashed: predictions).}
+\caption{Comparison of PHGST-DM and baselines at Onset limit~$\leq5$: (a)~next-window state; (b)~duration with the true reference truncated at 20~min for visualization (black: ground truth; dashed: predictions).}
 \label{fig:key-device-baselines}
 \end{figure*}
 
 
 
-Figure~\ref{fig:key-device-baselines} shows the corresponding trajectories. PHGST-DM follows both intervals and their recovery, connecting event coverage to successive duration forecasts. The displayed true-duration reference is truncated at 20~min, while every model retains the 30-min prediction horizon.
+Figure~\ref{fig:key-device-baselines} shows the corresponding trajectories. PHGST-DM tracks both bottleneck intervals and the subsequent recovery, connecting event coverage to successive duration forecasts. The displayed true-duration reference is truncated at 20~min, while every model retains the 30-min prediction horizon.
 
 \zhpara{图~\ref{fig:key-device-baselines} 展示对应切割工位轨迹。PHGST-DM 同时跟踪各区间及其恢复，将事件覆盖与 successive 持续时间预测连接。所示真实持续时间参考在 20~min 处截断，各模型仍保留 30~min 预测 horizon。}
 
@@ -1538,19 +1538,19 @@ The process-cause comparison covers four operational conditions: material shorta
 \zhpara{过程原因比较覆盖四类运行条件：物料短缺、运输延迟、队列积压与下游阻塞（表~\ref{tab:comparison-state}）。}
 
 
-PHGST-DM exceeds the three neural baselines in both cause accuracy and macro recall across the onset limits. Compared with the strongest neural baseline at each limit, macro recall improves by 1.4--4.3 percentage points.
+PHGST-DM outperforms the four baselines in both cause accuracy and macro recall across the onset limits. Compared with the strongest baseline at each limit, macro recall improves by 1.4--4.3 percentage points.
 
-\zhpara{PHGST-DM 在各起始限制下的原因准确率与宏召回均超过三个神经基线。相对各限制下最强神经基线，宏召回提升 1.4--4.3 个百分点。}
+\zhpara{PHGST-DM 在各起始限制下的原因准确率与宏召回均超过四个基线。相对各限制下最强基线，宏召回提升 1.4--4.3 个百分点。}
 
 
-The model accurately describes observable process conditions associated with the predicted bottleneck, giving its location and timing outputs an interpretable operational context.
+The process-cause predictions provide observable operational context for the predicted bottleneck location and timing.
 
-\zhpara{模型准确描述与预测瓶颈相关的可观测过程条件，为其位置与时间输出赋予可解读的运行上下文。}
+\zhpara{过程原因预测为所预测的瓶颈位置与时间提供可观测的运行上下文。}
 
 
 \begin{table*}[pos=!tbp]
 \centering
-\caption{Bottleneck process-cause prediction (\%). Each onset-limit group reports accuracy and macro recall. Within each onset-limit metric, bold marks the best value and underline marks second-best among the compared models. All entries use the unified 5,354-window re-evaluation in Section~\ref{sec:comparison-overview}. Macro R denotes the unweighted mean recall over the four process-cause classes; the onset limits are in minutes.}
+\caption{Bottleneck process-cause prediction (\%). Each onset-limit group reports accuracy and macro recall. Within each onset-limit metric, boldface marks the best value and underlining marks the second-best among the compared models. All entries use the unified 5,354-window re-evaluation in Section~\ref{sec:comparison-overview}. Macro R denotes the unweighted mean recall over the four process-cause classes; the onset limits are in minutes.}
 \label{tab:comparison-state}
 \scriptsize
 \setlength{\tabcolsep}{3.2pt}
@@ -1561,11 +1561,11 @@ Model & \multicolumn{2}{c}{Onset limit $\leq5$} & \multicolumn{2}{c}{Onset limit
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(l){6-7}
  & Accuracy $\uparrow$ & Macro R $\uparrow$ & Accuracy $\uparrow$ & Macro R $\uparrow$ & Accuracy $\uparrow$ & Macro R $\uparrow$ \\
 \midrule
-PHGST-DM & \underline{96.5\%} & \underline{96.7\%} & \underline{96.2\%} & \underline{96.5\%} & \underline{97.4\%} & \underline{97.8\%} \\
-XGBoost & \textbf{99.0\%} & \textbf{98.8\%} & \textbf{99.0\%} & \textbf{98.8\%} & \textbf{99.0\%} & \textbf{98.8\%} \\
+PHGST-DM & \textbf{96.5\%} & \textbf{96.7\%} & \textbf{96.2\%} & \textbf{96.5\%} & \textbf{97.4\%} & \textbf{97.8\%} \\
 LSTM & 93.8\% & 92.0\% & 93.6\% & 93.0\% & 94.4\% & 92.2\% \\
+BSTAN & \underline{95.7\%} & \underline{95.2\%} & \underline{95.9\%} & \underline{95.1\%} & \underline{95.1\%} & \underline{93.5\%} \\
 BTGCN & 90.0\% & 88.2\% & 90.7\% & 90.0\% & 90.7\% & 90.0\% \\
-BSTAN & 95.7\% & 95.2\% & 95.9\% & 95.1\% & 95.1\% & 93.5\% \\
+PDFormer & 88.8\% & 88.7\% & 76.9\% & 74.7\% & 79.6\% & 77.3\% \\
 \bottomrule
 \end{tabular*}
 \end{table*}
@@ -1580,7 +1580,7 @@ After joint training, the remaining-time head is fine-tuned while the encoder an
 
 \begin{table}[pos=htbp]
 \centering
-\caption{Global order remaining-time MAE (min; lower is better). Within each onset limit, bold marks the best value and underline marks second-best. All entries use the unified 5,354-window re-evaluation in Section~\ref{sec:comparison-overview}.}
+\caption{Global order remaining-time MAE (min; lower is better). Within each onset limit, boldface marks the best value and underlining marks the second-best. All entries use the unified 5,354-window re-evaluation in Section~\ref{sec:comparison-overview}.}
 \label{tab:comparison-remain}
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -1589,13 +1589,13 @@ After joint training, the remaining-time head is fine-tuned while the encoder an
 \toprule
 Model & Onset limit $\leq5$ & Onset limit $\leq10$ & Onset limit $\leq15$ \\
 \midrule
-XGBoost & \textbf{5.23} & \textbf{5.23} & \textbf{5.23} \\
-LSTM & 10.59 & 10.61 & 9.01 \\
-BTGCN & 19.34 & 18.10 & 12.83 \\
-BSTAN & 14.70 & 13.85 & 13.56 \\
-\midrule
 PHGST-DM (stage 1) & 10.93 & 11.21 & 9.72 \\
-PHGST-DM (stage 2) & \underline{9.60} & \underline{9.27} & \underline{8.91} \\
+PHGST-DM (stage 2) & \textbf{9.60} & \textbf{9.27} & \textbf{8.91} \\
+\midrule
+LSTM & 10.59 & \underline{10.61} & \underline{9.01} \\
+BSTAN & 14.77 & 13.855 & 13.56 \\
+BTGCN & 19.34 & 18.10 & 12.83 \\
+PDFormer & \underline{10.437} & 11.254 & 10.422 \\
 \bottomrule
 \end{tabular*}
 \end{table}
@@ -1605,11 +1605,11 @@ Second-stage fine-tuning reduces remaining-time MAE by 0.81--1.94~min across the
 \zhpara{第二阶段微调在各起始限制下将 remaining-time MAE 降低 0.81--1.94~min，相对阶段~1 相当于 8.3--17.3\% 的降幅，同时保留事件与原因输出。冻结编码器与其余头将订单进度优化与事件预测分离，在不改变事件报告功能的情况下改善组合输出。}
 
 
-Figure~\ref{fig:remain-finetune} locates most improvement in early and middle production.
+Figure~\ref{fig:remain-finetune} shows that most of the improvement occurs in the early and middle production phases.
 
-After fine-tuning, PHGST-DM achieves the lowest remaining-time MAE among the recurrent and graph-based neural models at every onset limit, reducing error by 0.10--1.34~min relative to the strongest neural baseline. This combines competitive order-progress estimation with the resource-level event and process-cause forecasts.
+After fine-tuning, PHGST-DM achieves the lowest remaining-time MAE at every onset limit, reducing error by 0.10--1.34~min relative to the strongest baseline at each limit. This combines competitive order-progress estimation with the resource-level event and process-cause forecasts.
 
-\zhpara{微调后 PHGST-DM 在各起始限制下于循环与图神经模型中 remaining-time MAE 最低，相对最强神经基线误差降低 0.10--1.34~min。这与资源级事件及过程原因预测形成有竞争力的订单进度估计。}
+\zhpara{微调后 PHGST-DM 在各起始限制下的 remaining-time MAE 均最低，相对各限制下最强基线的误差降低 0.10--1.34~min。这与资源级事件及过程原因预测形成有竞争力的订单进度估计。}
 
 
 \begin{figure*}[pos=!tbp]
@@ -1621,7 +1621,7 @@ After fine-tuning, PHGST-DM achieves the lowest remaining-time MAE among the rec
 
 \subsection{Evaluation of the proposed components}
 
-The component studies isolate heterogeneous multi-entity representation, process-informed supervision and temporal pattern clustering, and recurrent-pattern-guided delay-aware modeling (Table~\ref{tab:ablation-arms}). Full and all ablation arms share initialization, training budget, curriculum, and validation selection. Remaining-time ablations compare models before head-specific fine-tuning to keep the optimization conditions matched; the fine-tuned full-model results are evaluated in Section~\ref{sec:comparison-remain}. Section~\ref{sec:decoder-training} examines the supporting decoder and training components.
+The component studies isolate heterogeneous multi-entity representation, process-informed supervision and temporal pattern clustering, and recurrent-pattern-guided delay-aware modelling (Table~\ref{tab:ablation-arms}). Full and all ablation arms share initialization, training budget, curriculum, and validation selection. Remaining-time ablations compare models before head-specific fine-tuning to keep the optimization conditions matched; the fine-tuned full-model results are evaluated in Section~\ref{sec:comparison-remain}. Section~\ref{sec:decoder-training} examines the supporting decoder and training components.
 
 \zhpara{组件研究分别隔离异构多实体表示、过程知情监督与时间模式聚类，以及循环模式引导的延迟感知建模（表~\ref{tab:ablation-arms}）。完整模型与全部消融臂共享初始化、训练预算、课程与验证选择。剩余时间消融在头专用微调前比较模型以保持优化条件一致；微调完整模型结果在第~\ref{sec:comparison-remain} 节评估。第~\ref{sec:decoder-training} 节考察 supporting 解码器与训练组件。}
 
@@ -1643,7 +1643,7 @@ NoCross & Heterogeneous graph & Within-type edges only; cross-type semantic atte
 NoInfo & Heterogeneous graph & Only workstations observed; non-workstation features and five coupling channels zeroed & Common protocol, 50 epochs \\
 WorkstationOnly & Heterogeneous graph & NoCross and NoInfo combined & Common protocol, 50 epochs \\
 NoCluster & Temporal pattern clustering & Temporal pattern clustering removed & Common protocol, 50 epochs \\
-NoPattern & \makecell[l]{Delay-aware modeling} & Recent-patch matching to the temporal-pattern prototype bank disabled & Common protocol, 50 epochs \\
+NoPattern & \makecell[l]{Delay-aware modelling} & Recent-patch matching to the temporal-pattern prototype bank disabled & Common protocol, 50 epochs \\
 NoSplit & Decoder & One shared event-occurrence head for continuing and new events & Common protocol, 50 epochs \\
 NoFarBoost & Training & Far-onset weighting and enhanced false-alarm penalty removed & Common protocol, 50 epochs \\
 \bottomrule
@@ -1661,7 +1661,7 @@ Multi-entity ablations assess the contribution of non-workstation observations a
 
 \begin{table*}[pos=!tbp]
 \centering
-\caption{Ablation of the heterogeneous graph, grouped embedding, and multi-entity information. Type hmean is the harmonic mean of workstation, gantry, and AGV occupancy F1; Dur.\ MAE is the union duration MAE (min; lower is better). Within each onset limit, bold marks the best value and underline marks second-best. NoInfo and WorkstationOnly retain the same evaluation targets; their zero type hmean reflects zero occupancy F1 for at least one resource type after the associated input information is removed. R denotes recall, Upcoming R is recall for newly emerging events, and State F1 (1-step) evaluates next-window occupancy; onset limit is in minutes.}
+\caption{Ablation of the heterogeneous graph, grouped embedding, and multi-entity information. Type hmean is the harmonic mean of workstation, gantry, and AGV occupancy F1; Dur.\ MAE is the union duration MAE (min; lower is better). Within each onset limit, boldface marks the best value and underlining marks the second-best. NoInfo and WorkstationOnly retain the same evaluation targets; their zero type hmean reflects zero occupancy F1 for at least one resource type after the associated input information is removed. R denotes recall, Upcoming R is recall for newly emerging events, and State F1 (1-step) evaluates next-window occupancy; onset limit is in minutes.}
 \label{tab:entity-ablation-new}
 \scriptsize
 \setlength{\tabcolsep}{3.5pt}
@@ -1708,7 +1708,7 @@ At Onset limit~$\leq5$, the full representation improves upcoming recall by 50.9
 
 
 
-The complete representation also follows bottleneck persistence and recovery more closely in Figure~\ref{fig:key-device-entity}. Thus, the heterogeneous graph benefits both advance warning and duration tracking. Resource-level results appear in Appendix~\ref{app:supplementary-results}, with case selection in Appendix~\ref{app:case-details}.
+The complete representation also tracks bottleneck persistence and recovery more closely in Figure~\ref{fig:key-device-entity}. Thus, the heterogeneous graph benefits both advance warning and duration tracking. Resource-level results appear in Appendix~\ref{app:supplementary-results}, with case selection in Appendix~\ref{app:case-details}.
 
 \zhpara{完整表示在图~\ref{fig:key-device-entity} 中亦更紧密跟踪瓶颈持续与恢复。因而异构图同时受益于提前预警与持续时间跟踪。资源级结果见附录~\ref{app:supplementary-results}，案例选择见附录~\ref{app:case-details}。}
 
@@ -1721,7 +1721,7 @@ The complete representation also follows bottleneck persistence and recovery mor
 \end{figure*}
 
 \paragraph*{Cross-resource attention.}\label{sec:attention-protocol}
-Figure~\ref{fig:attn-types} examines how the model combines resource information under normal, upcoming, and ongoing bottleneck conditions. Each condition uses 96 episode-stratified test samples, with attention averaged over samples, history steps, heads, and layers. Type-level cells represent mean query-type/attended-type weights. The geographic branch consistently places greater weight on workstations, while the semantic branch exhibits strong workstation--AGV associations and distinct gantry and worker patterns. These associations complement the ablation results by showing how production, transport, and worker information enter the learned representation. The two branches provide complementary resource views for forecasting constraints whose operational context extends beyond the affected workstation.
+Figure~\ref{fig:attn-types} examines how the model combines resource information under normal, upcoming, and ongoing bottleneck conditions. Each condition uses 96 episode-stratified test samples, with attention averaged over samples, history steps, heads, and layers. Type-level cells represent mean query-type/attended-type weights. The geographic branch consistently places greater weight on workstations, while the semantic branch exhibits strong workstation--AGV associations and distinct gantry and worker patterns. These associations complement the ablation results by showing how information about production, transport, and workers enters the learned representation. The two branches provide complementary resource views for forecasting constraints whose operational context extends beyond the affected workstation.
 
 \zhpara{\paragraph*{跨资源注意力.}\label{sec:attention-protocol}
 图~\ref{fig:attn-types} 考察模型在正常、Upcoming 与 Ongoing 瓶颈条件下如何组合资源信息。各条件使用 96 个按 episode 分层的测试样本，注意力在样本、历史步、头与层上平均。类型级单元格表示查询类型/被关注类型的平均权重。地理分支 consistently 对工位赋予更大权重，语义分支呈现 strong 工位—AGV 关联及 distinct 龙门与工人模式。这些关联补充消融结果，展示生产、运输与工人信息如何进入所学表示。两支为运行上下文超出受影响工位的约束预测提供互补资源视图。}
@@ -1788,14 +1788,14 @@ The cause-supervision comparison holds labels, data split, onset limit, initiali
 原因监督比较在标签、数据划分、起始限制、初始化、种子与训练预算保持不变的条件下进行（表~\ref{tab:matched-cause}）。}
 
 
-Adding cause supervision improves the separately selected cause accuracy by 67.0 percentage points and macro recall by 68.2 points, while logged station F1 changes by only 0.2 points.
+Adding cause supervision improves cause accuracy at the separately selected operating point by 67.0 percentage points and macro recall by 68.2 points, while logged station F1 changes by only 0.2 points.
 
 \zhpara{加入原因监督使单独选出的原因准确率提高 67.0 个百分点、宏召回提高 68.2 点，而记录的工位 F1 仅变化 0.2 点。}
 
 
-Process-cause supervision improves the accuracy and interpretability of the process context reported alongside bottleneck-station predictions. Event and cause targets together connect the predicted resource constraint to its observable operational context.
+Process-cause supervision improves classification accuracy for the process context reported alongside bottleneck-station predictions. Event and cause targets together connect the predicted resource constraint to its observable operational context.
 
-\zhpara{过程原因监督提高与瓶颈工位预测一并报告的过程上下文的准确性与可解读性。事件与原因目标共同将预测的资源约束与其可观测运行上下文相连接。}
+\zhpara{过程原因监督提高了与瓶颈工位预测一并报告的过程上下文的分类准确率。事件与原因目标共同将预测的资源约束与其可观测运行上下文相连接。}
 
 
 \begin{table}[pos=!htbp]
@@ -1823,7 +1823,7 @@ Selected cause macro recall & 25.5\% & \textbf{93.7\%} \\
 \paragraph*{(3) Validation against production sensitivity.}
 To assess the production relevance of the event labels, the pilot compares their rankings with order-completion sensitivity under the counterfactual acceleration protocol in Section~\ref{sec:sensitivity-protocol}.
 
-PHGST-DM obtains the highest point estimates on all retained alignment metrics (Figure~\ref{fig:label-oracle-pilot}). Compared with Queue-Wait, weighted Recall@3 increases by 13.1 percentage points, indicating better coverage of resources whose acceleration shortens order completion. The counterfactual validation shows that, in the evaluated production episodes, the process-informed bottleneck rankings agree with resources that constrain order completion.
+PHGST-DM obtains the highest point estimates on all retained alignment metrics (Figure~\ref{fig:label-oracle-pilot}). Compared with Queue-Wait, weighted Recall@3 increases by 13.1 percentage points, indicating better coverage of resources whose acceleration reduces order-completion time. The counterfactual validation shows that, in the evaluated production episodes, the process-informed bottleneck rankings align with the sensitivity of resources that constrain order completion.
 
 \zhpara{PHGST-DM 在所有保留对齐指标上取得最高点估计（图~\ref{fig:label-oracle-pilot}）。相对 Queue-Wait，加权 Recall@3 提高 13.1 个百分点，表明更好覆盖加速可缩短订单完成的资源。该反事实验证表明，在所评估生产回合中，过程知情瓶颈排序与约束订单完成的资源一致。}
 
@@ -1831,7 +1831,7 @@ PHGST-DM obtains the highest point estimates on all retained alignment metrics (
 \begin{figure}[pos=htbp]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_label_oracle_bars.pdf}
-\caption{Counterfactual sensitivity alignment in the exploratory pilot (↑ better).}
+\caption{Counterfactual sensitivity alignment in the exploratory pilot (↑: higher is better).}
 \label{fig:label-oracle-pilot}
 \end{figure}
 
@@ -1840,7 +1840,7 @@ This agreement supports the production relevance of combining process evidence w
 \zhpara{该一致支持在识别瓶颈时综合过程证据的生产相关性，将标注方法与 counterfactual 生产响应相联系。分阶段结果见附录~\ref{app:supplementary-results}。}
 
 
-\subsubsection{Delay-aware modeling}\label{sec:delay-analysis}
+\subsubsection{Delay-aware modelling}\label{sec:delay-analysis}
 
 NoPattern disables recent-patch matching to the fixed prototype bank while retaining the graph and attention branches (Table~\ref{tab:delay-ablation-new}). It isolates historical pattern conditioning from the availability of heterogeneous observations.
 
@@ -1859,7 +1859,7 @@ This distant-warning benefit supports using earlier resource patterns to anticip
 
 \begin{table*}[pos=!tbp]
 \centering
-\caption{Ablation of temporal-pattern prototype matching in delay-aware modeling. $R_{\mathrm{up,rep}}$ is strict report recall within the stated onset-distance bin; Cause Macro R is macro recall over the four supported process-cause classes. Remain MAE (min) is compared with the stage-1 model, which, like the ablation, has no remaining-time fine-tuning. Upcoming R denotes recall for newly emerging events, Queue R denotes recall for the queue-buildup cause, and superscripts 6--10 and $>10$ specify onset-distance bins in minutes; onset limit is also in minutes.}
+\caption{Ablation of temporal-pattern prototype matching in delay-aware modelling. $R_{\mathrm{up,rep}}$ is strict report recall within the stated onset-distance bin; Cause Macro R is macro recall over the four supported process-cause classes. Remain MAE (min) is compared with the stage-1 model, which, like the ablation, has no remaining-time fine-tuning. Upcoming R denotes recall for newly emerging events, Queue R denotes recall for the queue-buildup cause, and superscripts 6--10 and $>10$ specify onset-distance bins in minutes; onset limit is also in minutes.}
 \label{tab:delay-ablation-new}
 \scriptsize
 \setlength{\tabcolsep}{2.6pt}
@@ -1903,7 +1903,7 @@ Figure~\ref{fig:attn-temporal} compares historical attention under normal and up
 \label{fig:attn-layers}
 \end{figure*}
 
-Figure~\ref{fig:attn-layers} reveals complementary changes across encoder layers. Geographic attention is distributed across several workstation columns in layer~1, becomes concentrated around M3 in layer~4, and is more distributed again in layer~5. Semantic attention remains sparse and resource-specific, with prominent links involving workstations, workers, and AGVs. Together, these views show that resource information is reweighted across layers and combined through distinct geographic and semantic patterns. Appendix~\ref{app:layerwise-attention} retains all five layers.
+Figure~\ref{fig:attn-layers} reveals complementary changes across encoder layers. Geographic attention is distributed across several workstation columns in layer~1, becomes concentrated around M3 in layer~4, and is more distributed again in layer~5. Semantic attention remains sparse and resource-specific, with prominent links involving workstations, workers, and AGVs. Together, these views show that resource information is reweighted across layers and combined through distinct geographic and semantic patterns. Appendix~\ref{app:layerwise-attention} presents all five layers.
 
 \zhpara{图~\ref{fig:attn-layers} 揭示各编码层的互补变化。地理注意力在第~1 层分布于多个工位列，第~4 层集中于 M3 附近，第~5 层再次更分散。语义注意力保持稀疏且资源特异，工位、工人与 AGV 间存在 prominent 连接。这些视图共同表明资源信息在各层重加权，并通过 distinct 地理与语义模式组合。附录~\ref{app:layerwise-attention} 保留全部五层。}
 
@@ -1931,7 +1931,7 @@ Two decoder-related ablations examine split event heads and far-onset enhancemen
 
 \begin{table*}[pos=!tbp]
 \centering
-\caption{Ablation of the split event heads and the far-onset enhancement. Distance-specific $R_{\mathrm{up,rep}}$ additionally requires the three-window onset tolerance. Thr is the validation-selected report threshold. Upcoming R and Ongoing R denote recall for newly emerging and already active events, respectively; the superscript $>10$ restricts recall to onsets more than 10~min ahead. Dur.\ MAE is union duration mean absolute error in minutes; onset limit is in minutes.}
+\caption{Ablation of the split event heads and the far-onset enhancement. Distance-specific $R_{\mathrm{up,rep}}$ additionally requires the three-window onset tolerance. Thr is the validation-selected report threshold. Upcoming R and Ongoing R denote recall for newly emerging and already active events, respectively; the superscript $>10$ restricts recall to events with onsets more than 10~min ahead. Dur.\ MAE is the union duration mean absolute error in minutes; onset limit is in minutes.}
 \label{tab:decoder-ablation}
 \scriptsize
 \setlength{\tabcolsep}{3.5pt}
@@ -1968,7 +1968,7 @@ Figure~\ref{fig:key-device-struct-graph} shows closer duration tracking by the c
 \begin{figure*}[pos=!tbp]
 \centering
 \includegraphics[width=0.96\textwidth]{figures/key_device_struct_pair.pdf}
-\caption{Ablation traces (Onset limit~$\leq5$): (a)~graph arms; (b)~process-rule/context, delay-aware modeling, and decoder arms.}
+\caption{Ablation traces (Onset limit~$\leq5$): (a)~graph arms; (b)~process-rule/context, delay-aware modelling, and decoder arms.}
 \label{fig:key-device-struct-graph}
 \end{figure*}
 
@@ -1987,7 +1987,7 @@ PHGST-DM warns approximately 1~min before the short event, maintains coverage th
 
 
 
-The workstation state map checks coverage across resources in the same episode (Figure~\ref{fig:all-devices-main}). Full covers the positive cells of both the cutting and second welding workstations, improving episode State F1 by 4.0 percentage points over the strongest ablated configuration, NoGraph. NoInfo and NoCluster miss the welding interval, while NoGraph fragments it. The full model therefore preserves a more complete view of simultaneous workstation constraints within the episode.
+The workstation state map shows coverage across resources in the same episode (Figure~\ref{fig:all-devices-main}). Full covers the positive cells of both the cutting and second welding workstations, improving episode State F1 by 4.0 percentage points over the strongest ablated configuration, NoGraph. NoInfo and NoCluster miss the welding interval, while NoGraph fragments it. The full model therefore preserves a more complete view of simultaneous workstation constraints within the episode.
 
 \zhpara{工位状态图检验同一 episode 内跨资源覆盖（图~\ref{fig:all-devices-main}）。Full 覆盖切割与第二焊接工位的正单元，相对最强消融配置 NoGraph 将 episode State F1 提高 4.0 个百分点。NoInfo 与 NoCluster 遗漏焊接区间，NoGraph 将其碎片化。完整模型因而在 episode 内保留更完整的 simultaneous 工位约束视图。}
 
@@ -2003,7 +2003,7 @@ Figure~\ref{fig:per-device} examines whether the joint predictor covers workstat
 
 
 
-The complete per-device result table and supplementary mixed-condition probability map remain in Appendix~\ref{app:case-details}.
+The complete per-device result table and supplementary mixed-condition probability map are provided in Appendix~\ref{app:case-details}.
 
 \zhpara{完整逐设备结果表与补充混合条件概率图仍见附录~\ref{app:case-details}。}
 
@@ -2011,7 +2011,7 @@ The complete per-device result table and supplementary mixed-condition probabili
 \begin{figure}[pos=!tbp]
 \centering
 \includegraphics[width=\columnwidth]{figures/all_devices_state_main.pdf}
-\caption{Next-window state map for seven workstation targets (gray TN; light blue TP; coral FP/FN). TN, TP, FP, and FN denote true negatives, true positives, false positives, and false negatives, respectively.}
+\caption{Next-window state map for seven workstation targets (grey: TN; light blue: TP; coral: FP/FN). TN, TP, FP, and FN denote true negatives, true positives, false positives, and false negatives, respectively.}
 \label{fig:all-devices-main}
 \end{figure}
 
@@ -2021,12 +2021,12 @@ The complete per-device result table and supplementary mixed-condition probabili
 \includegraphics[width=0.88\columnwidth,trim=0 0 250.36bp 0,clip]{figures/fig_per_device_box.pdf}
 \par\smallskip
 \includegraphics[width=0.88\columnwidth,trim=255bp 0 0 0,clip]{figures/fig_per_device_box.pdf}
-\caption{Per-device F1-score and union duration MAE for PHGST-DM at Onset limit~$\leq5$, by workstation, gantry, and AGV.}
+\caption{Per-device F1-score and union duration MAE for PHGST-DM at Onset limit~$\leq5$, grouped by resource type: workstation, gantry, and AGV.}
 \label{fig:per-device}
 \end{figure}
 
 \paragraph*{Experimental findings.}
-The experiments link heterogeneous resource observations to improved advance warning and process-informed supervision to the explanatory output. Temporal pattern clustering and prototype-conditioned interaction support event identification, duration estimation, and distant-onset warning, while the sensitivity pilot provides preliminary evidence of label relevance. Aggregate comparisons and station-level trajectories assess bottleneck location, onset, persistence, and recovery; per-device results show variation across resource families, and the remaining-time head adds order-level context.
+The experiments link heterogeneous resource observations to improved advance warning and process-informed supervision to process-cause prediction. Temporal pattern clustering and prototype-conditioned interaction support event identification, duration estimation, and distant-onset warning, while the sensitivity pilot provides preliminary evidence of label relevance. Aggregate comparisons and station-level trajectories assess bottleneck location, onset, persistence, and recovery; per-device results show variation across resource families, and the remaining-time head adds order-level context.
 
 \zhpara{\paragraph*{实验发现。}
 实验将异构资源观测与提前预警改善相联系，并将过程知情监督与解释性输出相联系。时间模式聚类与原型条件化交互支持事件识别、持续时间估计与远距起始预警；敏感性先导实验为标签相关性提供初步证据。总体比较与工位级轨迹评估瓶颈位置、起始、持续与恢复；逐设备结果显示不同资源族差异，剩余时间头补充订单级上下文。}
@@ -2036,9 +2036,9 @@ The experiments link heterogeneous resource observations to improved advance war
 \FloatBarrier
 \section{Discussion}\label{sec:discussion}
 
-Joint prediction relates the bottleneck interval to observable process conditions and remaining order time, combining a resource-level constraint forecast with an order-level progress estimate. Together, these outputs describe where a constraint is expected, how it may develop, and the production context in which it occurs. The differing model rankings across outputs also indicate that a shared representation need not be optimal for every target (Tables~\ref{tab:comparison-main}--\ref{tab:comparison-remain}).
+Joint prediction relates the bottleneck interval to observable process conditions and remaining order time, combining a resource-level constraint forecast with an order-level progress estimate. Together, these outputs describe where a constraint is expected, how it may develop, and the production context in which it occurs. Differences in baseline rankings across outputs indicate that predictive performance depends on the target (Tables~\ref{tab:comparison-main}--\ref{tab:comparison-remain}).
 
-\zhpara{联合预测将瓶颈区间与可观测过程条件及剩余订单时间相联系，组合资源级约束预测与订单级进度估计。这些输出共同描述约束预期在何处、如何发展以及所处的生产上下文。各输出间不同的模型排序亦表明共享表示未必对每个目标均最优（表~\ref{tab:comparison-main}--\ref{tab:comparison-remain}）。}
+\zhpara{联合预测将瓶颈区间与可观测过程条件及剩余订单时间相联系，组合资源级约束预测与订单级进度估计。这些输出共同描述约束预期在何处、如何发展以及所处的生产上下文。各输出之间基线排序的差异表明，预测性能取决于具体目标（表~\ref{tab:comparison-main}--\ref{tab:comparison-remain}）。}
 
 
 The three component studies connect these forecasts to multi-entity observations, process-informed supervision and temporal pattern clustering, and prototype-conditioned interaction. Cross-resource ablations reduce advance-warning coverage; the matched-budget cause study improves process-cause classification with little change in station F1; removing prototype matching reduces distant-event recall. These are predictive associations and do not establish physical causal paths or propagation-time estimates.
@@ -2046,9 +2046,9 @@ The three component studies connect these forecasts to multi-entity observations
 \zhpara{三项组件研究将这些预测与多实体观测、过程知情监督与时间模式聚类，以及原型条件化交互相连接。跨资源消融降低提前预警覆盖；匹配预算原因研究在工位 F1 几乎不变下改善过程原因分类；移除原型匹配降低远距事件召回。这些是预测性关联，并不构成物理因果路径或传播时间估计。}
 
 
-Potential integration with manufacturing execution, warehouse management, and transport-dispatch systems would require mapping operational observations to the resource graph, as in integrated monitoring and simulation platforms~\cite{leng2023monitoring}. Such integration is not evaluated here. Appendix~\ref{sec:efficiency} reports model-side computation; scheduling quality, intervention-policy selection, and throughput improvement require separate closed-loop evaluation.
+Potential integration with manufacturing execution, warehouse management, and transport-dispatch systems would require mapping operational observations to the resource graph, as in integrated monitoring and simulation platforms~\cite{leng2023monitoring}. Such integration is not evaluated here. Scheduling quality, intervention-policy selection, and throughput improvement require separate closed-loop evaluation.
 
-\zhpara{与制造执行、仓储管理与运输调度系统的潜在集成须将运行观测映射到资源图，如 integrated 监控与仿真平台所示~\cite{leng2023monitoring}。此类集成未在本研究中评估。附录~\ref{sec:efficiency} 报告模型侧计算；调度质量、干预策略选择与吞吐改善须 separate 闭环评估。}
+\zhpara{与制造执行、仓储管理与运输调度系统的潜在集成须将运行观测映射到资源图，如 integrated 监控与仿真平台所示~\cite{leng2023monitoring}。此类集成未在本研究中评估。调度质量、干预策略选择与吞吐改善须 separate 闭环评估。}
 
 
 Evaluation is limited to the factory environment developed for NVIDIA Isaac Sim. Transfer across layouts, products, and physical factories remains untested. The sensitivity pilot assesses label relevance under fixed actions and does not evaluate forecast-driven production decisions.
@@ -2076,7 +2076,7 @@ The authors declare that they have no known competing financial interests or per
 Data will be made available on request.
 
 \section*{Acknowledgments}
-The work described in this paper is supported by grants from RGC General Research Fund (17206126), Technology Cooperation Funding Scheme (TCFS) (Ref No.\ GHP/321/22SZ), The University of Hong Kong (Ref No.\ 2407102267, 2503252159), and Innovation and Technology Fund (ITF) (Ref No.\ TP/041/24LP).
+The work described in this paper is supported by grants from the RGC General Research Fund (17206126), the Technology Cooperation Funding Scheme (TCFS) (Ref No.\ GHP/321/22SZ), The University of Hong Kong (Ref No.\ 2407102267, 2503252159), and the Innovation and Technology Fund (ITF) (Ref No.\ TP/041/24LP).
 
 \zhpara{\section*{致谢}
 本研究获香港研究资助局一般研究基金（17206126）、科技合作资助计划（TCFS，编号 GHP/321/22SZ）、香港大学（编号 2407102267、2503252159）及创新及科技基金（ITF，编号 TP/041/24LP）资助。}
@@ -2091,9 +2091,9 @@ The work described in this paper is supported by grants from RGC General Researc
 \renewcommand{\dblfloatpagefraction}{0.7}
 \section{Implementation Details and Additional Results}\label{app:additional}
 
-The appendices retain implementation settings, numerical rules, supplementary prediction and case results, computational cost, and descriptive attention maps.
+The appendices provide implementation settings, numerical rules, supplementary prediction and case results, and descriptive attention maps.
 
-\zhpara{附录保留实现设置、数值规则、补充预测与案例结果、计算成本及描述性注意力图。}
+\zhpara{附录提供实现设置、数值规则、补充预测与案例结果，以及描述性注意力图。}
 
 
 Table~\ref{tab:shared-training-protocol} summarizes the settings shared by the Full model and ablation arms; their architectural differences are listed in Table~\ref{tab:ablation-arms}.
@@ -2120,7 +2120,7 @@ Item & Setting \\
 Initialization and seed & Identical initial parameter values across arms; seed 42 \\
 Optimizer and batch size & AdamW; batch size 16; weight decay 0.05 \\
 Learning rate & $5\times10^{-5}$ initially; cosine decay to $10^{-6}$ \\
-Sampling and training budget & Fourfold positive-window oversampling; at most 50 epochs per Onset-limit run; early-stopping patience 40 \\
+Sampling and training budget & Fourfold positive-window oversampling; at most 50 epochs per onset-limit run; early-stopping patience 40 \\
 Curriculum & Onset limit~$\leq5\rightarrow$Onset limit~$\leq10\rightarrow$Onset limit~$\leq15$ \\
 Checkpoint criterion & Validation station-identification F1 among candidates with report precision $\geq0.80$ and recall $\geq0.70$ \\
 Threshold candidates & $\{0.45,0.50,0.55,0.60,0.65,0.70,0.75,0.80,0.85,0.88,0.90,0.94\}$ \\
@@ -2181,9 +2181,9 @@ For Onset limit~$\leq15$, strict report recall is $0.574/0.522/0.433$ for onset 
 \zhpara{对 Onset limit~$\leq15$，严格报告召回在 5、6--10 及 10~min 以上起始距离上分别为 $0.574/0.522/0.433$。在三档起始限制对应任务中，工位匹配真阳性上的精确起始准确率为 $0.896/0.844/0.831$，起始分桶准确率为 $0.921/0.918/0.920$。工位/龙门/机器人 F1 在 Onset limit~$\leq5$ 为 $0.805/0.811/0.771$，在 Onset limit~$\leq15$ 为 $0.751/0.840/0.639$。总体事件与时间结果见表~\ref{tab:comparison-main}。}
 
 
-\subsection{Structural and pattern-modeling comparisons}
+\subsection{Structural and pattern-modelling comparisons}
 
-Beyond the main structural-ablation results, NoGroup has strict report recall $0.192$ for onsets beyond 10~min. Across limits, resource-type hmean is $0.505$--$0.536$ for Full, $0.360$--$0.384$ for NoGraph, and $0.365$--$0.396$ for NoCross. Figure~\ref{fig:key-device-entity} illustrates the corresponding trajectories: Full identifies both intervals about 5~min before NoInfo and WorkstationOnly, whose duration estimates remain at 6--8~min during the plotted 20-min reference plateau. NoCross reaches 14~min before declining to about 8~min.
+Beyond the main structural-ablation results, NoGroup has a strict report recall of $0.192$ for onsets beyond 10~min. Across limits, resource-type hmean is $0.505$--$0.536$ for Full, $0.360$--$0.384$ for NoGraph, and $0.365$--$0.396$ for NoCross. Figure~\ref{fig:key-device-entity} illustrates the corresponding trajectories: Full identifies both intervals about 5~min before NoInfo and WorkstationOnly, whose duration estimates remain at 6--8~min during the plotted 20-min reference plateau. NoCross reaches 14~min before declining to about 8~min.
 
 \zhpara{除主要结构消融结果外，NoGroup 对 10~min 以上起始的 strict report recall 为 $0.192$。跨起始限制，资源类型 hmean 对 Full 为 $0.505$--$0.536$，NoGraph 为 $0.360$--$0.384$，NoCross 为 $0.365$--$0.396$。图~\ref{fig:key-device-entity} 展示对应轨迹：Full 比 NoInfo 与 WorkstationOnly 约早 5~min 识别两段区间，后二者在所绘 20~min 参考平台期间持续时间估计仍为 6--8~min。NoCross 在降至约 8~min 前达 14~min。}
 
@@ -2195,7 +2195,13 @@ Beyond the main structural-ablation results, NoGroup has strict report recall $0
 
 \subsection{Stage-resolved sensitivity alignment}
 
-The mean weighted coverage of positive sensitivity by the top-three candidates is $71.6\%$ under the pilot protocol. Early-, middle-, and late-stage NDCG@3 values are $0.421/0.339/0.770$, with the strongest alignment near order completion. 
+Table~\ref{tab:oracle-pilot-ci} supplements Figure~\ref{fig:label-oracle-pilot} with point estimates and reported 95\% confidence intervals for the Ops labelling method. The results describe the 30-episode development pilot and should be interpreted as exploratory evidence.
+
+\zhpara{表~\ref{tab:oracle-pilot-ci} 补充图~\ref{fig:label-oracle-pilot} 中 Ops 标签方法的点估计及所报告的 95\% 置信区间。这些结果来自30个 episode 的开发先导实验，应作为探索性证据解读。百分比指标的区间宽度以百分点（pp）表示。}
+
+\input{../experiments/tables/oracle_pilot_ci.tex}
+
+The mean weighted coverage of positive sensitivity by the top three candidates is $71.6\%$ under the pilot protocol. Early-, middle-, and late-stage NDCG@3 values are $0.421/0.339/0.770$, with the strongest alignment near order completion. 
 
 \zhpara{在先导协议下，前三候选对正敏感性的加权平均覆盖为 $71.6\%$。早、中、晚阶段 NDCG@3 分别为 $0.421/0.339/0.770$，订单完成附近对齐最强。}
 
@@ -2204,7 +2210,7 @@ The mean weighted coverage of positive sensitivity by the top-three candidates i
 
 \subsection{Case selection and detailed trace observations}
 
-The main-case episode is \texttt{n10\_human1.0\_\_episode\_03}. The cutting workstation contributes 301 event-positive window--resource pairs. Devices with at least the median event count are first retained. Among them, the device with the most events in a single episode is selected, with ties resolved by PHGST-DM one-step F1. Its episode is then chosen based on the number and length of bottleneck segments. Figure~\ref{fig:key-device-baselines} reports the selected case. Its short-event duration estimate is 10--11~min; during the plotted 20-min reference plateau, estimates are 13--17~min, with state errors spanning 1--2 boundary windows. Plot truncation does not alter the 30-min prediction horizon.
+The episode used for the main case study is \texttt{n10\_human1.0\_\_episode\_03}. The cutting workstation contributes 301 event-positive window--resource pairs. Devices with at least the median event count are first retained. Among them, the device with the most events in a single episode is selected, with ties resolved by PHGST-DM one-step F1. Its episode is then chosen based on the number and length of bottleneck segments. Figure~\ref{fig:key-device-baselines} reports the selected case. PHGST-DM estimates the short-event duration as 10--11~min; during the plotted 20-min reference plateau, estimates are 13--17~min, with state errors spanning 1--2 boundary windows. Plot truncation does not alter the 30-min prediction horizon.
 
 \zhpara{主案例 episode 为 \texttt{n10\_human1.0\_\_episode\_03}。切割工位贡献 301 个事件正窗口—资源对。先保留事件数至少为中位数的设备；其中选单 episode 事件最多者，平局按 PHGST-DM 单步 F1 打破。再据瓶颈片段数量与长度选 episode。图~\ref{fig:key-device-baselines} 报告所选案例。短事件持续时间估计为 10--11~min；在所绘 20~min 参考平台期间估计为 13--17~min，状态误差跨 1--2 个边界窗口。绘图截断不改变 30~min 预测 horizon。}
 
@@ -2220,7 +2226,7 @@ The main-case episode is \texttt{n10\_human1.0\_\_episode\_03}. The cutting work
 
 
 \paragraph*{Mixed-condition probability map.}
-Figure~\ref{fig:attn-prediction} uses a supplementary mixed-condition checkpoint and episode \texttt{n10\_mix\_all1.0\_\_episode\_03}, selected automatically for high bottleneck activity. It shows relative test windows $0$--$200$ and 20 rows: 15 target resources and five worker context nodes, omitting 18 buffers. The panels compare future labels, probabilities, and absolute errors. Probabilities are not thresholded reports, and this supplementary configuration does not represent aggregate performance of the main \texttt{dense\_i1} model.
+Figure~\ref{fig:attn-prediction} uses a supplementary mixed-condition checkpoint and episode \texttt{n10\_mix\_all1.0\_\_episode\_03}, selected automatically for high bottleneck activity. It shows relative test windows $0$--$200$ across 20 rows: 15 target resources and five worker context nodes, omitting 18 buffers. The panels compare future labels, probabilities, and absolute errors. Probabilities are not thresholded reports, and this supplementary configuration does not represent the aggregate performance of the main \texttt{dense\_i1} model.
 
 \zhpara{\paragraph*{混合条件概率图。}
 图~\ref{fig:attn-prediction} 使用补充混合条件 checkpoint 与 episode \texttt{n10\_mix\_all1.0\_\_episode\_03}，自动选取高瓶颈活动。它显示相对测试窗口 $0$--$200$ 与 20 行：15 个目标资源与五个工人上下文节点，省略 18 个缓冲区。各面板比较未来标签、概率与绝对误差。概率非阈值化报告，该补充配置不代表主 \texttt{dense\_i1} 模型的 aggregate 性能。}
@@ -2244,58 +2250,6 @@ Table~\ref{tab:complete-6-1} provides per-resource counts and errors under the o
 % Per-device server exports are pending synchronization; do not infer replacement device counts from the aggregate score.
 \input{../experiments/tables/ch5_complete_device.tex}
 
-\section{Prediction quality and computational cost}\label{sec:efficiency}
-
-Computational cost is measured for the models compared in Section~\ref{sec:comparison-event}. All five models run inference on an NVIDIA GeForce RTX~5090 with Python~3.11.15 and CUDA~12.8. The neural models use PyTorch~2.11.0; the seven tree-based prediction heads use XGBoost~3.2.0 with CuPy~14.2.0. Throughput is measured over five complete test passes at batch size 16 after 50 warm-up batches, including data loading. Forward and report latency are measured at batch size 1 over 5,000 timed calls, with CUDA synchronization before and after each measurement. Both latency measures cover model-side computation. Forward latency measures prediction with inputs or prepared features resident on the GPU. Report latency additionally includes input transfer, model-specific feature processing, and event-report generation. For XGBoost, this comprises CPU history-feature construction, host-to-device transfer, seven CUDA prediction heads, and device-to-host output transfer. Table~\ref{tab:efficiency} summarizes the three onset limits, and Figure~\ref{fig:quality-cost} relates report latency to the F1-score values in Table~\ref{tab:comparison-main}.
-
-\zhpara{本实验考察实现第~\ref{sec:comparison-event}节预测质量所需的计算成本。五种模型均在 NVIDIA GeForce RTX~5090 上执行推理。软件环境采用 Python~3.11.15 和 CUDA~12.8，神经模型使用 PyTorch~2.11.0，七个树模型预测头使用 XGBoost~3.2.0 与 CuPy~14.2.0。吞吐量采用 batch size 16，在五十个预热 batch 后完成五次完整测试。纯前向与报告延迟采用 batch size 1，统计 5,000 次调用，并在每次计时前后执行 CUDA 同步。计时边界覆盖模型侧报告生成。纯前向计时覆盖输入或已构造特征驻留 GPU 时的模型预测。报告计时包含输入传输、模型对应的特征处理、预测及事件报告生成；其中，XGBoost 包含 CPU 端历史特征构造、主机到设备的传输、七个 CUDA 预测头以及输出回传。批量测试还包含数据加载。表~\ref{tab:efficiency}汇总三个起始限制的开销，图~\ref{fig:quality-cost}将报告延迟与表~\ref{tab:comparison-main}中的 F1-score 对应展示。}
-
-
-% All 15 GPU timing rows are verified against isaac_factory@a5b6c92,
-% including the original PHGST-DM report snapshots. B2 uses the 2026-10-24 CUDA run.
-% See experiments/efficiency_comparison_2026-10-24.md for provenance and checks.
-\begin{table*}[pos=!tbp]
-\centering
-\caption{Inference cost on the RTX~5090. Ranges give the minimum and maximum across Onset limit $\leq5$, $\leq10$, and $\leq15$ min. Throughput uses batch size 16 and report latency uses batch size 1. GPU allocation is the PyTorch allocator peak. Report p50, p95, and p99 denote the 50th, 95th, and 99th percentiles of report latency; MiB denotes mebibytes.}
-\label{tab:efficiency}
-\footnotesize
-\setlength{\tabcolsep}{3.3pt}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular*}{\FullWidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
-\toprule
-Model & Parameters & \makecell{GPU allocation\\(MiB)} & \makecell{Throughput $\uparrow$\\(samples/s)} & \makecell{Report p50 $\downarrow$\\(ms)} & \makecell{Report p95 $\downarrow$\\(ms)} & \makecell{Report p99 $\downarrow$\\(ms)} \\
-\midrule
-\textbf{PHGST-DM} & 713,984 & 175.8 & 1,946\textendash{}1,987 & 4.72\textendash{}4.77 & 5.32\textendash{}5.41 & 5.51\textendash{}5.60 \\
-XGBoost & \na & \na & 236\textendash{}323 & 39.29\textendash{}58.55 & 41.73\textendash{}60.86 & 52.81\textendash{}72.66 \\
-LSTM & 752,867 & 83.8 & 8,547\textendash{}8,740 & 0.64\textendash{}0.65 & 1.14\textendash{}1.15 & 1.33\textendash{}1.35 \\
-BTGCN & 274,339 & 240.3 & 6,881\textendash{}7,274 & 0.92\textendash{}0.95 & 1.48\textendash{}1.51 & 1.62\textendash{}1.66 \\
-BSTAN & 287,267 & 239.7 & 6,584\textendash{}6,667 & 1.00\textendash{}1.03 & 1.54\textendash{}1.58 & 1.64\textendash{}1.68 \\
-\bottomrule
-\end{tabular*}
-\par\vspace{3pt}
-\begin{minipage}{\FullWidth}
-\scriptsize
-Timing runs use the source-recorded workloads on a shared server under the same unified 5,354-window re-evaluation as Section~\ref{sec:comparison-overview}. GPU allocation includes resident inference inputs. XGBoost uses its native CUDA allocator, so its PyTorch allocation is unavailable; its separately sampled NVIDIA Management Library (NVML) process peak is 662--670~MiB, including the CUDA context, libraries, and caches.
-\end{minipage}
-\end{table*}
-
-\begin{figure*}[pos=!tbp]
-\centering
-\includegraphics[width=0.96\textwidth]{figures/fig_quality_cost.pdf}
-\caption{Event-identification quality versus median report latency for each onset limit.}
-\label{fig:quality-cost}
-\end{figure*}
-
-Table~\ref{tab:efficiency} and Figure~\ref{fig:quality-cost} compare quality and model-side reporting cost. PHGST-DM has the highest event F1 across limits, while LSTM, BTGCN, and BSTAN report faster. All timings characterize the evaluated implementations and exclude a complete deployed acquisition-to-action pipeline.
-
-\zhpara{表~\ref{tab:efficiency} 与图~\ref{fig:quality-cost} 比较质量与模型侧报告成本。PHGST-DM 在各起始限制 event F1 最高，而 LSTM、BTGCN 与 BSTAN 报告更快。所有计时刻画所评估实现，不含完整部署的采集—行动流水线。}
-
-
-The three PHGST-DM checkpoints share architecture and input shape. Each has 713,984 parameters and a 2.91-MiB checkpoint; median report latency varies by 0.05~ms across limits. These measurements characterize the tested platform and do not establish field deployment performance.
-
-\zhpara{三个 PHGST-DM 检查点共享架构与输入形状。各含 713,984 参数、2.91~MiB 检查点；中位报告延迟跨起始限制变化 0.05~ms。这些测量刻画测试平台，并不确立现场部署性能。}
-
-
 \section{Supplementary attention analysis}\label{app:attention-analysis}
 
 
@@ -2306,7 +2260,7 @@ The three PHGST-DM checkpoints share architecture and input shape. Each has 713,
 \subsection{Complete resource and layer matrices}
 \label{app:absolute-attention}
 \label{app:layerwise-attention}
-Figures~\ref{fig:attn-states} and~\ref{fig:attn-layers-all} retain the absolute resource averages and all five layers corresponding to the selected views in the main text. Layer-wise matrices share within-branch scales. Attention weights describe learned associations, not causal effects or layer-wise accuracy contributions.
+Figures~\ref{fig:attn-states} and~\ref{fig:attn-layers-all} retain the absolute resource averages and all five layers corresponding to the selected views in the main text. Layer-wise matrices share the same scale within each branch. Attention weights describe learned associations, not causal effects or layer-wise accuracy contributions.
 
 \begin{figure*}[pos=!tbp]
 \centering
