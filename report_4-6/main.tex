@@ -1,0 +1,356 @@
+% !TeX program = pdflatex
+% !TeX encoding = UTF-8
+% 香港大学 Capstone 期末报告框架。正文使用英文，中文仅用于源码注释。
+% 先修改下方封面资料，再搜索 TODO，逐项替换写作提示。
+% 参考排版：Capstone_Final_Report_Ref.pdf；不是学校官方模板。
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ==================== 页面与字体 ====================
+\usepackage[a4paper,margin=1in]{geometry}
+% 保留默认 Computer Modern 字体，与参考 PDF 的字体一致。
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{xcolor}
+\usepackage{makecell,multirow}
+\usepackage{caption}
+\usepackage{placeins}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage[authoryear,square]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\graphicspath{{figures/}}
+\setstretch{1.25} % 12pt 正文的行距约 18pt，按参考 PDF 估计。
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\pagestyle{plain} % 无页眉，页码位于页脚中间。
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlist{topsep=0.5\baselineskip,itemsep=0.25\baselineskip}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% ==================== TODO：封面资料 ====================
+\newcommand{\UniversityName}{The University of Hong Kong}
+\newcommand{\FacultyName}{Faculty of Science}
+\newcommand{\ProgrammeName}{Master of Science in Artificial Intelligence Programme}
+\newcommand{\CourseName}{ARIN7600 Artificial Intelligence Project}
+\newcommand{\CourseSession}{[Year/Term]}
+\newcommand{\ProjectTitle}{[Your Project Title]}
+% 多人可用逗号分隔，太长时可在合适位置加入 \\ 换行。
+\newcommand{\StudentNames}{[Student Name] ([Student ID])}
+\newcommand{\PrimarySupervisor}{[Primary Supervisor Name]}
+\newcommand{\SecondarySupervisor}{[Secondary Supervisor Name]}
+\newcommand{\SubmissionDate}{[YYYY/MM/DD]}
+
+% 默认显示参考报告末尾的可编辑分工表；不需要时改成 false。
+\newif\ifincludeworkdistribution
+\includeworkdistributiontrue
+% 参考文献由 chapters/references.tex 生成。
+
+\hypersetup{
+  pdftitle={\ProjectTitle},
+  pdfauthor={\StudentNames},
+  pdfsubject={ARIN7600 Final Report}
+}
+
+% ==================== 章标题与辅助命令 ====================
+% 模仿参考：Chapter N 与章名分两行、居中、粗体。
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{50\p@}%
+  {\parindent\z@\centering\normalfont
+    \ifnum\c@secnumdepth>\m@ne
+      \Huge\bfseries \@chapapp\space\thechapter\par\nobreak
+      \vskip20\p@
+    \fi
+    \interlinepenalty\@M
+    \Huge\bfseries #1\par\nobreak
+    \vskip40\p@}}
+\renewcommand{\@makeschapterhead}[1]{%
+  \vspace*{50\p@}%
+  {\parindent\z@\centering\normalfont
+    \interlinepenalty\@M
+    \Huge\bfseries #1\par\nobreak
+    \vskip40\p@}}
+% 目录保留左对齐标题，与参考报告一致。
+\newcommand{\ReportContents}{%
+  \begingroup
+  \renewcommand{\@makeschapterhead}[1]{%
+    \vspace*{50\p@}%
+    {\parindent\z@\raggedright\normalfont
+     \Huge\bfseries ##1\par\nobreak\vskip40\p@}}%
+  \tableofcontents
+  \endgroup}
+\makeatother
+
+% 不编号的章也自动进入目录，页码随编译更新。
+\newcommand{\unnumberedchapter}[1]{%
+  \chapter*{#1}%
+  \phantomsection
+  \addcontentsline{toc}{chapter}{#1}}
+\renewcommand{\bibsection}{\unnumberedchapter{References}}
+\setlength{\bibhang}{1em}
+
+% 可见的写作占位提示。写作时将整个 \placeholder{...} 替换成正文。
+\newcommand{\placeholder}[1]{{\color{gray}[#1]}}
+\newcommand{\figureplaceholder}[2][45mm]{%
+  \fbox{\parbox[c][#1][c]{0.90\linewidth}{%
+    \centering\color{gray}#2}}}
+
+
+% Single-column report adapters for the migrated manuscript tables and floats.
+\captionsetup{font=small,labelfont=normalfont}
+\newsavebox{\reporttablebox}
+\newenvironment{fittable}{\begin{lrbox}{\reporttablebox}}{%
+  \end{lrbox}%
+  \ifdim\wd\reporttablebox>\linewidth
+    \typeout{REPORT TABLE SCALED: natural=\the\wd\reporttablebox; target=\the\linewidth}%
+    \resizebox{\linewidth}{!}{\usebox{\reporttablebox}}%
+  \else\usebox{\reporttablebox}\fi}
+\AtBeginEnvironment{table}{\singlespacing}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.65}
+\raggedbottom
+
+\begin{document}
+
+% ==================== 封面：不显示页码 ====================
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+  \vspace*{2.45cm}
+  {\LARGE \UniversityName\par}
+  \vspace{0.35cm}
+  {\Large \FacultyName\par}
+  \vspace{0.35cm}
+  {\Large \ProgrammeName\par}
+  \vspace{1.3cm}
+  {\large \CourseName\space\CourseSession\par}
+  \vspace{0.9cm}
+  {\Huge Final Report\par}
+  \vspace{1.6cm}
+  {\Large\bfseries Topic: \ProjectTitle\par}
+  \vspace{1.6cm}
+\end{center}
+\noindent\textbf{Student:} \StudentNames\par
+\noindent\textbf{Primary Supervisor:} \PrimarySupervisor\par
+% 没有第二导师时可删除下一行。
+\noindent\textbf{Secondary Supervisor:} \SecondarySupervisor\par
+\noindent\textbf{Submission Date:} \SubmissionDate\par
+\vfill
+\end{titlepage}
+
+% 参考报告从目录开始使用阿拉伯数字，正文不重新从 1 编号。
+\pagenumbering{arabic}
+\hypersetup{pageanchor=true}
+\ReportContents
+
+% ==================== 摘要 ====================
+\unnumberedchapter{Abstract}
+% TODO：建议写成连贯的 4--5 段；下列标签仅是提示，不必保留。
+\noindent\placeholder{Context and problem: introduce the application domain,
+state the problem, and explain why it matters.}
+
+\placeholder{Research gap and objective: identify what existing approaches
+cannot adequately address and state the aim of this project.}
+
+\placeholder{Method: summarise the proposed pipeline, core components,
+and the main technical contribution.}
+
+\placeholder{Evaluation and findings: describe the data or scenarios,
+comparisons, and the most important measured results. Fill in actual values
+only after completing the experiments.}
+
+\placeholder{Conclusion and significance: explain what the findings establish,
+the main limitation, and the intended use of the work.}
+
+% ==================== 第 1 章 ====================
+\chapter{Introduction}
+\label{ch:introduction}
+% 参考报告的引言不拆分编号小节；这里保留连贯段落结构。
+\noindent\placeholder{Background and motivation: introduce the project domain,
+its practical setting, and the importance of the problem.}
+
+\placeholder{Problem and gap: explain the limitations of existing methods,
+data, or systems. Support factual claims with references.}
+
+\placeholder{Project objective and scope: state what the project aims to
+achieve, its inputs and outputs, and the assumptions or boundaries.}
+
+\placeholder{Overview of the proposed approach: explain the major stages
+and how they address the problem.}
+
+The main contributions of this project are as follows:
+\begin{enumerate}
+  \item \placeholder{Contribution 1: describe a concrete method, dataset,
+  system, or formalisation produced by this project.}
+  \item \placeholder{Contribution 2: describe the next distinct contribution
+  and explain how it is evaluated.}
+  \item \placeholder{Contribution 3: state another supported contribution,
+  or remove this item if it is not applicable.}
+\end{enumerate}
+
+The remainder of this report is organised as follows.
+Chapter~\ref{ch:related} reviews related work.
+Chapter~\ref{ch:methodology} presents the methodology.
+Chapter~\ref{ch:experiments} reports the experiments and analysis.
+Chapter~\ref{ch:challenges} discusses the challenges and limitations.
+Finally, Chapter~\ref{ch:conclusion} concludes the report.
+
+% ==================== 第 2 章 ====================
+\chapter{Related Works}
+\label{ch:related}
+% TODO：将下面的小节标题改为你的项目实际涉及的技术方向。
+\section{Background and Core Concepts}
+\placeholder{Define the core concepts, terminology, and task setting.
+Review the literature needed to understand the project.}
+
+\section{Existing Approaches to the Target Problem}
+\subsection{Classical Approaches}
+\placeholder{Review traditional and rule-based methods. Explain their assumptions,
+strengths, and limitations.}
+
+\subsection{Recent Approaches}
+\placeholder{Review recent approaches relevant to the project and compare
+their data requirements, objectives, and evaluation settings.}
+
+\section{Relevant Models and Technologies}
+\placeholder{Review the models, algorithms, simulation tools, or system
+technologies that directly motivate the design choices.}
+
+\section{Research Gap and Project Positioning}
+\placeholder{Synthesise the literature: explain which gap remains and how
+this project relates to existing work. Avoid claiming novelty without evidence.}
+
+% 引用示例（填好 references.bib 并启用 usebibliography 后再取消注释）：
+% Prior work \citep{replace-with-your-key} studies a related problem.
+% \citet{replace-with-your-key} propose a complementary approach.
+
+% ==================== 第 3 章 ====================
+\chapter{Methodology}
+\label{ch:methodology}
+\noindent\placeholder{Introduce the overall approach and describe the flow
+from project inputs to outputs. Rename the module headings below to match
+the actual system.}
+
+Figure~\ref{fig:pipeline} provides an overview of the proposed pipeline.
+\begin{figure}[htbp]
+  \centering
+  % TODO：将下一行替换为真实图片，例如：
+  % \includegraphics[width=0.95\linewidth]{pipeline.pdf}
+  \figureplaceholder{Insert the overall architecture or workflow diagram.\\[6pt]
+  Inputs $\longrightarrow$ Module 1 $\longrightarrow$ Module 2
+  $\longrightarrow$ Outputs}
+  \caption{Overview of the proposed methodology.}
+  \label{fig:pipeline}
+\end{figure}
+
+\section{Module 1: Data Preparation}
+\subsection{Data Sources and Preprocessing}
+\placeholder{Describe the data, collection or generation process, inclusion
+criteria, preprocessing steps, and quality checks.}
+
+\subsection{Problem Definition and Notation}
+\placeholder{Define the inputs, outputs, assumptions, variables, and objective.
+Replace or remove the generic equation below as appropriate.}
+
+% TODO：以下仅演示公式排版，不代表你的项目实际使用了此目标函数。
+\begin{equation}
+  \theta^{\star}
+  = \operatorname*{arg\,min}_{\theta\in\Theta}
+    \frac{1}{N}\sum_{i=1}^{N}\mathcal{L}\bigl(f_{\theta}(x_i),y_i\bigr).
+  \label{eq:objective}
+\end{equation}
+\placeholder{For Equation~\ref{eq:objective}, define every symbol and explain
+why the objective matches the task. This is a formatting example only.}
+
+\subsection{Representation and Quality Control}
+\placeholder{Describe the schema, features, labels, data structures, or
+intermediate representation and explain how correctness is checked.}
+
+\section{Module 2: Method and Implementation}
+\subsection{Model or Algorithm Design}
+\placeholder{Explain the core algorithm, model architecture, or decision
+process, including the rationale for important design choices.}
+
+\subsection{Implementation Details}
+\placeholder{Describe component interfaces, key parameters, software and
+hardware, and any implementation choices needed to reproduce the method.}
+
+\subsection{Integration and Output Generation}
+\placeholder{Explain how the modules are connected, how failures are handled,
+and how the final outputs are produced and stored.}
+
+% ==================== 已迁移：第 4--6 章 ====================
+\input{chapters/04_experiments}
+\input{chapters/05_challenges}
+\input{chapters/06_conclusion}
+
+% ==================== 参考文献及附录 ====================
+\input{chapters/references}
+\input{chapters/appendix}
+
+% ==================== 可选：工作分工表 ====================
+% 按参考 PDF 的实际顺序放在最后。以下为可编辑重排版，不是官方原表。
+% 参考 PDF 内表格说明提到致谢后放置；最终位置按你的课程要求调整。
+% 签名与日期留空，由成员自行填写。
+\ifincludeworkdistribution
+\clearpage
+\thispagestyle{empty}
+\phantomsection
+\addcontentsline{toc}{chapter}{Work Distribution Form}
+\begingroup
+\setstretch{1.0}
+\begin{center}
+  THE UNIVERSITY OF HONG KONG\\[2pt]
+  DEPARTMENT OF MATHEMATICS,\\[2pt]
+  DEPARTMENT OF STATISTICS AND ACTUARIAL SCIENCE \&\\[2pt]
+  DEPARTMENT OF COMPUTER SCIENCE\\[14pt]
+  \textbf{\CourseName}\\[4pt]
+  \textbf{Work Distribution Form}
+\end{center}
+\vspace{12pt}
+\noindent\textbf{I. WORK DISTRIBUTION}\par
+\vspace{8pt}
+\noindent Record each member's responsible chapters or project components.
+For shared work, specify each member's contribution percentage.\par
+\vspace{12pt}
+\renewcommand{\arraystretch}{1.2}
+\noindent\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|Y|}
+  \hline
+  \textbf{Name} & \textbf{Responsible Chapters / Parts (\%)} \\
+  \hline
+  1.\rule{0pt}{25mm} & \\
+  \hline
+  2.\rule{0pt}{25mm} & \\
+  \hline
+  3.\rule{0pt}{25mm} & \\
+  \hline
+  4.\rule{0pt}{25mm} & \\
+  \hline
+\end{tabularx}
+\vspace{22pt}
+
+\noindent\textbf{II. STUDENTS' SIGNATURE}\par
+\vspace{18pt}
+\noindent\begin{tabularx}{\linewidth}{@{}XX@{}}
+  1. \hrulefill & 2. \hrulefill \\[20pt]
+  3. \hrulefill & 4. \hrulefill
+\end{tabularx}
+\vspace{18pt}
+
+\noindent Date: \rule{0.42\linewidth}{0.4pt}
+\endgroup
+\fi
+
+\end{document}
