@@ -1,0 +1,237 @@
+% !TeX program = pdflatex
+% !TeX encoding = UTF-8
+% 香港大学 Capstone 期末报告框架。正文使用英文，中文仅用于源码注释。
+% 先修改下方封面资料，再搜索 TODO，逐项替换写作提示。
+% 参考排版：Capstone_Final_Report_Ref.pdf；不是学校官方模板。
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ==================== 页面与字体 ====================
+\usepackage[a4paper,margin=1in]{geometry}
+% 保留默认 Computer Modern 字体，与参考 PDF 的字体一致。
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{xcolor}
+\usepackage{makecell,multirow}
+\usepackage{caption}
+\usepackage{placeins}
+\usepackage{etoolbox}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage[authoryear,square]{natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\graphicspath{{figures/}}
+\setstretch{1.25} % 12pt 正文的行距约 18pt，按参考 PDF 估计。
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0pt}
+\setlength{\emergencystretch}{2em}
+\pagestyle{plain} % 无页眉，页码位于页脚中间。
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\setlist{topsep=0.5\baselineskip,itemsep=0.25\baselineskip}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% ==================== TODO：封面资料 ====================
+\newcommand{\UniversityName}{The University of Hong Kong}
+\newcommand{\FacultyName}{Faculty of Science}
+\newcommand{\ProgrammeName}{Master of Science in Artificial Intelligence Programme}
+\newcommand{\CourseName}{ARIN7600 Artificial Intelligence Project}
+\newcommand{\CourseSession}{[Year/Term]}
+\newcommand{\ProjectTitle}{[Your Project Title]}
+% 多人可用逗号分隔，太长时可在合适位置加入 \\ 换行。
+\newcommand{\StudentNames}{[Student Name] ([Student ID])}
+\newcommand{\PrimarySupervisor}{[Primary Supervisor Name]}
+\newcommand{\SecondarySupervisor}{[Secondary Supervisor Name]}
+\newcommand{\SubmissionDate}{[YYYY/MM/DD]}
+
+% 默认显示参考报告末尾的可编辑分工表；不需要时改成 false。
+\newif\ifincludeworkdistribution
+\includeworkdistributiontrue
+% 参考文献由 chapters/references.tex 生成。
+
+\hypersetup{
+  pdftitle={\ProjectTitle},
+  pdfauthor={\StudentNames},
+  pdfsubject={ARIN7600 Final Report}
+}
+
+% ==================== 章标题与辅助命令 ====================
+% 模仿参考：Chapter N 与章名分两行、居中、粗体。
+\makeatletter
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{50\p@}%
+  {\parindent\z@\centering\normalfont
+    \ifnum\c@secnumdepth>\m@ne
+      \Huge\bfseries \@chapapp\space\thechapter\par\nobreak
+      \vskip20\p@
+    \fi
+    \interlinepenalty\@M
+    \Huge\bfseries #1\par\nobreak
+    \vskip40\p@}}
+\renewcommand{\@makeschapterhead}[1]{%
+  \vspace*{50\p@}%
+  {\parindent\z@\centering\normalfont
+    \interlinepenalty\@M
+    \Huge\bfseries #1\par\nobreak
+    \vskip40\p@}}
+% 目录保留左对齐标题，与参考报告一致。
+\newcommand{\ReportContents}{%
+  \begingroup
+  \renewcommand{\@makeschapterhead}[1]{%
+    \vspace*{50\p@}%
+    {\parindent\z@\raggedright\normalfont
+     \Huge\bfseries ##1\par\nobreak\vskip40\p@}}%
+  \tableofcontents
+  \endgroup}
+\makeatother
+
+% 不编号的章也自动进入目录，页码随编译更新。
+\newcommand{\unnumberedchapter}[1]{%
+  \chapter*{#1}%
+  \phantomsection
+  \addcontentsline{toc}{chapter}{#1}}
+\renewcommand{\bibsection}{\unnumberedchapter{References}}
+\setlength{\bibhang}{1em}
+
+% 可见的写作占位提示。写作时将整个 \placeholder{...} 替换成正文。
+\newcommand{\placeholder}[1]{{\color{gray}[#1]}}
+\newcommand{\figureplaceholder}[2][45mm]{%
+  \fbox{\parbox[c][#1][c]{0.90\linewidth}{%
+    \centering\color{gray}#2}}}
+
+% Body-text emphasis uses the paragraph's normal 12pt size explicitly.
+% This prevents bold labels in the migrated opening chapters from inheriting
+% an oversized font while retaining the intended emphasis.
+\newcommand{\normalbold}[1]{{\normalsize\bfseries #1}}
+
+
+% Single-column report adapters for the migrated manuscript tables and floats.
+\captionsetup{font=small,labelfont=normalfont}
+\newsavebox{\reporttablebox}
+\newenvironment{fittable}{\begin{lrbox}{\reporttablebox}}{%
+  \end{lrbox}%
+  \ifdim\wd\reporttablebox>\linewidth
+    \typeout{REPORT TABLE SCALED: natural=\the\wd\reporttablebox; target=\the\linewidth}%
+    \resizebox{\linewidth}{!}{\usebox{\reporttablebox}}%
+  \else\usebox{\reporttablebox}\fi}
+\AtBeginEnvironment{table}{\singlespacing}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.65}
+\raggedbottom
+
+\begin{document}
+
+% ==================== 封面：不显示页码 ====================
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{center}
+  \vspace*{2.45cm}
+  {\LARGE \UniversityName\par}
+  \vspace{0.35cm}
+  {\Large \FacultyName\par}
+  \vspace{0.35cm}
+  {\Large \ProgrammeName\par}
+  \vspace{1.3cm}
+  {\large \CourseName\space\CourseSession\par}
+  \vspace{0.9cm}
+  {\Huge Final Report\par}
+  \vspace{1.6cm}
+  {\Large\bfseries Topic: \ProjectTitle\par}
+  \vspace{1.6cm}
+\end{center}
+\noindent\textbf{Student:} \StudentNames\par
+\noindent\textbf{Primary Supervisor:} \PrimarySupervisor\par
+% 没有第二导师时可删除下一行。
+\noindent\textbf{Secondary Supervisor:} \SecondarySupervisor\par
+\noindent\textbf{Submission Date:} \SubmissionDate\par
+\vfill
+\end{titlepage}
+
+% 参考报告从目录开始使用阿拉伯数字，正文不重新从 1 编号。
+\pagenumbering{arabic}
+\hypersetup{pageanchor=true}
+\ReportContents
+
+% ==================== 摘要 ====================
+\unnumberedchapter{Abstract}
+
+This project develops PHGST-DM, a joint forecasting framework for bottleneck events in multi-entity production systems. The task is challenging because bottlenecks can shift across workstations, workers, buffers, gantries, automated guided vehicles, and material flows, while sustained events are relatively rare and their observable process conditions are distributed across resources. PHGST-DM combines process-informed supervision, a heterogeneous process--logistics graph, recurrent temporal-pattern context, delay-aware cross-resource modelling, and multi-task prediction of resource, onset, duration, process cause, and remaining order time.
+
+The method is evaluated on 204 valid episodes generated from an open-workspace NVIDIA Isaac Sim factory model. At onset limits of 5, 10, and 15~min, the model obtains event F1-scores of 80.4\%, 77.8\%, and 76.8\%, respectively, and reduces detected-event duration MAE relative to the strongest baseline by 0.86--1.03~min. Component studies examine heterogeneous observations, process-informed labels, temporal patterns, delay-aware modelling, and remaining-time specialization. The results support the proposed design for simulation-based bottleneck forecasting, while transfer to real-factory or digital-twin data and the production effects of forecast-guided interventions require further validation.
+
+% ==================== 第 1--3 章 ====================
+\input{chapters/01-introduction}
+\input{chapters/02-related-works}
+\input{chapters/03-methodology}
+
+% ==================== 已迁移：第 4--6 章 ====================
+\input{chapters/04_experiments}
+\input{chapters/05_challenges}
+\input{chapters/06_conclusion}
+
+% ==================== 参考文献及附录 ====================
+\input{chapters/references}
+\input{chapters/appendix}
+
+% ==================== 可选：工作分工表 ====================
+% 按参考 PDF 的实际顺序放在最后。以下为可编辑重排版，不是官方原表。
+% 参考 PDF 内表格说明提到致谢后放置；最终位置按你的课程要求调整。
+% 签名与日期留空，由成员自行填写。
+\ifincludeworkdistribution
+\clearpage
+\thispagestyle{empty}
+\phantomsection
+\addcontentsline{toc}{chapter}{Work Distribution Form}
+\begingroup
+\setstretch{1.0}
+\begin{center}
+  THE UNIVERSITY OF HONG KONG\\[2pt]
+  DEPARTMENT OF MATHEMATICS,\\[2pt]
+  DEPARTMENT OF STATISTICS AND ACTUARIAL SCIENCE \&\\[2pt]
+  DEPARTMENT OF COMPUTER SCIENCE\\[14pt]
+  \textbf{\CourseName}\\[4pt]
+  \textbf{Work Distribution Form}
+\end{center}
+\vspace{12pt}
+\noindent\textbf{I. WORK DISTRIBUTION}\par
+\vspace{8pt}
+\noindent Record each member's responsible chapters or project components.
+For shared work, specify each member's contribution percentage.\par
+\vspace{12pt}
+\renewcommand{\arraystretch}{1.2}
+\noindent\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|Y|}
+  \hline
+  \textbf{Name} & \textbf{Responsible Chapters / Parts (\%)} \\
+  \hline
+  1.\rule{0pt}{25mm} & \\
+  \hline
+  2.\rule{0pt}{25mm} & \\
+  \hline
+  3.\rule{0pt}{25mm} & \\
+  \hline
+  4.\rule{0pt}{25mm} & \\
+  \hline
+\end{tabularx}
+\vspace{22pt}
+
+\noindent\textbf{II. STUDENTS' SIGNATURE}\par
+\vspace{18pt}
+\noindent\begin{tabularx}{\linewidth}{@{}XX@{}}
+  1. \hrulefill & 2. \hrulefill \\[20pt]
+  3. \hrulefill & 4. \hrulefill
+\end{tabularx}
+\vspace{18pt}
+
+\noindent Date: \rule{0.42\linewidth}{0.4pt}
+\endgroup
+\fi
+
+\end{document}
