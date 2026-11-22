@@ -34,18 +34,18 @@
 \setlist{topsep=0.5\baselineskip,itemsep=0.25\baselineskip}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 
-% ==================== TODO：封面资料 ====================
+% ==================== 封面资料（未知信息留空） ====================
 \newcommand{\UniversityName}{The University of Hong Kong}
 \newcommand{\FacultyName}{Faculty of Science}
 \newcommand{\ProgrammeName}{Master of Science in Artificial Intelligence Programme}
 \newcommand{\CourseName}{ARIN7600 Artificial Intelligence Project}
-\newcommand{\CourseSession}{[Year/Term]}
-\newcommand{\ProjectTitle}{[Your Project Title]}
+\newcommand{\CourseSession}{}
+\newcommand{\ProjectTitle}{Process-informed heterogeneous graph learning with delay-aware modeling for dynamic bottleneck prediction in manufacturing}
 % 多人可用逗号分隔，太长时可在合适位置加入 \\ 换行。
-\newcommand{\StudentNames}{[Student Name] ([Student ID])}
-\newcommand{\PrimarySupervisor}{[Primary Supervisor Name]}
-\newcommand{\SecondarySupervisor}{[Secondary Supervisor Name]}
-\newcommand{\SubmissionDate}{[YYYY/MM/DD]}
+\newcommand{\StudentNames}{Tian Yuxiao (3036609589), Xu Wantong (3036580161), Zhang Haowen (3036580367)}
+\newcommand{\PrimarySupervisor}{}
+\newcommand{\SecondarySupervisor}{}
+\newcommand{\SubmissionDate}{2026/11/22}
 
 % 默认显示参考报告末尾的可编辑分工表；不需要时改成 false。
 \newif\ifincludeworkdistribution
@@ -148,7 +148,7 @@
   {\Large\bfseries Topic: \ProjectTitle\par}
   \vspace{1.6cm}
 \end{center}
-\noindent\textbf{Student:} \StudentNames\par
+\noindent\textbf{Students:} \mbox{\footnotesize Tian Yuxiao (3036609589)\quad Xu Wantong (3036580161)\quad Zhang Haowen (3036580367)}\par
 \noindent\textbf{Primary Supervisor:} \PrimarySupervisor\par
 % 没有第二导师时可删除下一行。
 \noindent\textbf{Secondary Supervisor:} \SecondarySupervisor\par
@@ -207,17 +207,16 @@ The method is evaluated on 204 valid episodes generated from an open-workspace N
 For shared work, specify each member's contribution percentage.\par
 \vspace{12pt}
 \renewcommand{\arraystretch}{1.2}
-\noindent\begin{tabularx}{\linewidth}{|p{0.25\linewidth}|Y|}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
+\noindent\begin{tabularx}{\linewidth}{|m{0.25\linewidth}|Y|}
   \hline
   \textbf{Name} & \textbf{Responsible Chapters / Parts (\%)} \\
   \hline
-  1.\rule{0pt}{25mm} & \\
+  \parbox[c][27mm][c]{\linewidth}{1. Zhang Haowen} & \parbox[c][27mm][c]{\linewidth}{Responsible for Related Works 2.1--2.2, Methodology 3.1.2--3.1.3, 3.2 and 3.6, and Experiments and Analysis 4.1.1 and 4.3.2. (33\%)} \\
   \hline
-  2.\rule{0pt}{25mm} & \\
+  \parbox[c][27mm][c]{\linewidth}{2. Xu Wantong} & \parbox[c][27mm][c]{\linewidth}{Responsible for Introduction, Related Works 2.3--2.5, Experiments and Analysis 4.1.2--4.1.3, 4.2 and 4.4, and Conclusion. (33\%)} \\
   \hline
-  3.\rule{0pt}{25mm} & \\
-  \hline
-  4.\rule{0pt}{25mm} & \\
+  \parbox[c][27mm][c]{\linewidth}{3. Tian Yuxiao} & \parbox[c][27mm][c]{\linewidth}{Responsible for Abstract, Methodology 3.1.1 and 3.3--3.5, Experiments and Analysis 4.3.1 and 4.3.3--4.3.4, and Challenges. (33\%)} \\
   \hline
 \end{tabularx}
 \vspace{22pt}
@@ -226,7 +225,7 @@ For shared work, specify each member's contribution percentage.\par
 \vspace{18pt}
 \noindent\begin{tabularx}{\linewidth}{@{}XX@{}}
   1. \hrulefill & 2. \hrulefill \\[20pt]
-  3. \hrulefill & 4. \hrulefill
+  3. \hrulefill &
 \end{tabularx}
 \vspace{18pt}
 
