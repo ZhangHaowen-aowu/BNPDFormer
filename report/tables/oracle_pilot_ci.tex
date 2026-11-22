@@ -1,5 +1,4 @@
-% Compact mode is enabled only by the English appendix layout.
-\begin{table}[!tbp]
+\begin{table}[!htbp]
 
 \centering
 \caption{Production-sensitivity alignment of the Ops labelling method used by PHGST-DM in the development pilot.}
@@ -8,22 +7,22 @@
 \setlength{\tabcolsep}{8pt}
 
 \renewcommand{\arraystretch}{1.1}
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrr@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrr@{}}
 \toprule
-Metric & Point estimate & 95\% confidence interval & Interval width \\
+Metric & Point estimate & 95\% confidence interval \\
 
 \midrule
-NDCG@3 & 0.531 & [0.492, 0.570] & 0.079 \\
-Positive Recall@2 & 55.556\% & [51.141, 59.971]\% & 8.830 pp \\
-Positive Recall@3 & 68.519\% & [63.270, 73.768]\% & 10.497 pp \\
-Weighted Recall@3 & 71.623\% & [66.052, 77.194]\% & 11.143 pp \\
-Coverage@3$_{0.9}$ & 72.222\% & [66.974, 77.470]\% & 10.497 pp \\
+NDCG@3 & 0.531 & [0.492, 0.570] \\
+Positive Recall@2 & 55.556\% & [51.141, 59.971]\% \\
+Positive Recall@3 & 68.519\% & [63.270, 73.768]\% \\
+Weighted Recall@3 & 71.623\% & [66.052, 77.194]\% \\
+Coverage@3$_{0.9}$ & 72.222\% & [66.974, 77.470]\% \\
 \bottomrule
 \end{tabular*}
 \par\vspace{3pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-The pilot comprises 30 disturbance-free development episodes. Interval width is the upper bound minus the lower bound; pp denotes percentage points. These exploratory intervals do not establish superiority over the comparison methods or generalization to other disturbance conditions.
+The pilot comprises 30 disturbance-free development episodes. These exploratory intervals do not establish superiority over the comparison methods or generalization to other disturbance conditions.
 \end{minipage}
 \end{table}
 

@@ -159,7 +159,7 @@ Raw resource evidence must distinguish an operationally meaningful constraint fr
 b^{\mathrm{raw}}_{t,n}=\Phi_{\rho(n)}(x_{t,n},X_t)\in\{0,1\}.
 \]
 
-Workstation evidence combines queue conditions, blockage/starvation, availability, coupling to upstream or downstream resources, inbound waiting, route delay, shortage propagation, and labour conditions. Gantry and AGV rules place greater emphasis on handling-related waiting and unavailability. The threshold conditions are applied to \textbf{physical-scale} features before standardization, rather than arbitrary normalized values. Table 3.3 gives representative rules; the actual workstation rule includes further alternatives and operating-variation restrictions described in the manuscript's implementation details.
+Workstation evidence combines queue conditions, blockage/starvation, availability, coupling to upstream or downstream resources, inbound waiting, route delay, shortage propagation, and labour conditions. Gantry and AGV rules place greater emphasis on handling-related waiting and unavailability. The threshold conditions are applied to \textbf{physical-scale} features before standardization, rather than arbitrary normalized values. Table~\ref{tab:raw-hot} gives representative rules rather than an exhaustive list of workstation conditions.
 
 \begin{table}[!htbp]
 \centering
@@ -290,7 +290,7 @@ a(p)=\arg\min_{k}\lVert p-k_k^P\rVert_2^2,
 k_k^P=\frac{1}{|\mathcal{P}_k|}\sum_{p\in\mathcal{P}_k}p.
 \]
 
-The resulting pattern bank \(K^P=\{k_1^P,\dots,k_{16}^P\}\) is kept fixed during downstream model training and evaluation. These are \textbf{recurrent operating-pattern prototypes}, not labels for bottleneck presence or process causes. The separate exploratory eight-cluster descriptors mentioned in the original implementation appendix are not substituted for this 16-prototype bank.
+The resulting pattern bank \(K^P=\{k_1^P,\dots,k_{16}^P\}\) is kept fixed during downstream model training and evaluation. These are \textbf{recurrent operating-pattern prototypes}, not labels for bottleneck presence or process causes.
 
 \subsection{Pattern-conditioned Cross-resource Interaction}\label{pattern-conditioned-cross-resource-interaction}
 
@@ -363,7 +363,7 @@ The training objective combines event occurrence, onset, temporal regression, oc
 
 Occurrence prediction combines reweighted binary cross-entropy, focal modulation, hard-false-positive weighting, and an internal differentiable F1 term. The new-onset head receives separate onset supervision. A Gaussian soft target supports onset-offset prediction, while log-transformed Smooth-L1 losses are used for duration, prefix, and remaining-time regression. The occupancy objective combines type-balanced binary cross-entropy with soft Dice and soft intersection-over-union terms. Class-weighted process-cause cross-entropy is applied only where a supported cause label accompanies positive bottleneck evidence. Reconstruction and supervised contrastive losses regularize the shared representation, and an auxiliary turning-point loss is included in the final objective.
 
-One naming distinction matters for reproducing the configuration. The active event-occurrence term \(\mathcal{L}_{\mathrm{will}}\) is \textbf{not} the same as the disabled legacy configuration switch named \texttt{will}. The offline cluster-head weight is zero, \(\lambda_{\mathrm{cluster}}=0\), so the model is not trained to classify offline cluster assignments. The full numerical weight and threshold settings are documented in the final paper's implementation appendix.
+One naming distinction matters for reproducing the configuration. The active event-occurrence term \(\mathcal{L}_{\mathrm{will}}\) is \textbf{not} the same as the disabled legacy configuration switch named \texttt{will}. The offline cluster-head weight is zero, \(\lambda_{\mathrm{cluster}}=0\), so the model is not trained to classify offline cluster assignments. Key loss weights and decoding thresholds are specified in Section~\ref{sec:experimental-settings}.
 
 \subsection{Two-stage Training and Validation-controlled Decoding}\label{two-stage-training-and-validation-controlled-decoding}
 
